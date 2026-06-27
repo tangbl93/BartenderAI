@@ -1,0 +1,151 @@
+# ============================================================
+# Home Bartender AI — full local stack
+# ------------------------------------------------------------
+# Services:
+#   postgres  : primary database (healthcheck + named volume)
+#   minio     : S3-compatible object storage for posters / media
+#   minio-init: one-shot job that creates + opens the bucket
+#   backend   : NestJS API  (build ./backend) — :3000  /api/v1  swagger /docs
+#   web       : Vue + Vite, served by nginx (build ./web) — :8080
+#
+# Usage:
+#   cp .env.example .env            # fill local values (never commit secrets)
+#   docker compose up -d            # bring up the whole stack
+#   docker compose logs -f backend  # follow backend logs
+#   docker compose down             # stop (add -v to drop volumes)
+#
+# An optional reverse-proxy gateway lives behind the "gateway" profile:
+#   docker compose --profile gateway up -d
+# ============================================================
+
+name: bartender-ai
+
+services:
+  # ---------------------------------------------------------- postgres
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-bartender}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bartender}
+      POSTGRES_DB: ${POSTGRES_DB:-bartender}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-bartender} -d ${POSTGRES_DB:-bartender}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # ---------------------------------------------------------- minio
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${STORAGE_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${STORAGE_SECRET_KEY:-minioadmin}
+    ports:
+      - "${MINIO_PORT:-9000}:9000"      # S3 API
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"  # web console
+    volumes:
+      - miniodata:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  # ------------------------------------------- minio bucket bootstrap
+  # One-shot: waits for minio, creates the bucket and sets a public
+  # read policy on the prefix used for shareable posters. Exits 0.
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_started
+    entrypoint: ["/bin/sh", "/scripts/minio-init.sh"]
+    environment:
+      MINIO_ENDPOINT: http://minio:9000
+      STORAGE_ACCESS_KEY: ${STORAGE_ACCESS_KEY:-minioadmin}
+      STORAGE_SECRET_KEY: ${STORAGE_SECRET_KEY:-minioadmin}
+      STORAGE_BUCKET: ${STORAGE_BUCKET:-bartender}
+    volumes:
+      - ./infra/minio:/scripts:ro
+    restart: "no"
+
+  # ---------------------------------------------------------- backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: bartender-backend:${IMAGE_TAG:-local}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    # Read shared config from .env; container-internal hostnames override
+    # the localhost defaults that .env.example documents for host usage.
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      BACKEND_PORT: 3000
+      # In-network service hostnames (override .env localhost values)
+      DATABASE_URL: postgres://${POSTGRES_USER:-bartender}:${POSTGRES_PASSWORD:-bartender}@postgres:5432/${POSTGRES_DB:-bartender}
+      STORAGE_DRIVER: s3-compatible
+      STORAGE_ENDPOINT: http://minio:9000
+      STORAGE_BUCKET: ${STORAGE_BUCKET:-bartender}
+      STORAGE_ACCESS_KEY: ${STORAGE_ACCESS_KEY:-minioadmin}
+      STORAGE_SECRET_KEY: ${STORAGE_SECRET_KEY:-minioadmin}
+      STORAGE_PUBLIC_BASE_URL: ${STORAGE_PUBLIC_BASE_URL:-http://localhost:9000/bartender}
+    ports:
+      - "${BACKEND_PORT:-3000}:3000"
+    healthcheck:
+      # Backend exposes GET /api/v1/health (see docs/api/openapi.yaml)
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/v1/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  # ---------------------------------------------------------- web
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+      args:
+        # Baked into the static bundle at build time.
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:3000/api/v1}
+    image: bartender-web:${IMAGE_TAG:-local}
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      # nginx inside the web image serves on :80
+      - "${WEB_PORT:-8080}:80"
+
+  # ------------------------------------------- optional reverse proxy
+  # Single entrypoint that routes / -> web and /api -> backend.
+  # Enable with: docker compose --profile gateway up -d
+  gateway:
+    image: nginx:1.27-alpine
+    profiles: ["gateway"]
+    restart: unless-stopped
+    depends_on:
+      - web
+      - backend
+    ports:
+      - "${GATEWAY_PORT:-80}:80"
+    volumes:
+      - ./infra/nginx/gateway.conf:/etc/nginx/conf.d/default.conf:ro
+
+volumes:
+  pgdata:
+  miniodata:

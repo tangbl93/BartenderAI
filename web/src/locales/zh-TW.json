@@ -1,0 +1,230 @@
+{
+  "common": {
+    "appName": "AI 調酒師",
+    "tagline": "把你的冰箱變成雞尾酒吧",
+    "loading": "載入中…",
+    "empty": "這裡還什麼都沒有",
+    "error": "出錯了",
+    "retry": "重試",
+    "back": "返回",
+    "next": "下一步",
+    "skip": "跳過",
+    "done": "完成",
+    "yes": "是",
+    "no": "否",
+    "action": {
+      "save": "儲存",
+      "cancel": "取消",
+      "delete": "刪除",
+      "edit": "編輯",
+      "create": "新增",
+      "submit": "提交",
+      "generate": "生成",
+      "confirm": "確認",
+      "close": "關閉"
+    },
+    "nav": {
+      "fridge": "翻冰箱",
+      "lab": "我的實驗室",
+      "wall": "海報牆",
+      "help": "說明",
+      "admin": "後台",
+      "login": "登入",
+      "logout": "登出",
+      "language": "語言"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "登入",
+      "account": "電子郵件或手機號",
+      "password": "密碼",
+      "submit": "登入",
+      "toRegister": "還沒有帳號？去註冊",
+      "failed": "帳號或密碼錯誤"
+    },
+    "register": {
+      "title": "註冊帳號",
+      "displayName": "暱稱",
+      "submit": "註冊",
+      "toLogin": "已有帳號？去登入",
+      "exists": "帳號已存在"
+    },
+    "admin": {
+      "title": "後台管理登入",
+      "hint": "僅限營運 / 管理員"
+    }
+  },
+  "fridge": {
+    "title": "翻冰箱",
+    "subtitle": "勾選你冰箱裡有的材料，開始調酒",
+    "category": {
+      "baseSpirit": "基酒",
+      "drink": "飲料",
+      "fruit": "水果",
+      "snack": "零食/輔料"
+    },
+    "selected": "已選（{count}）",
+    "selectedEmpty": "還沒有選擇任何材料",
+    "generate": "給我調一杯",
+    "needMore": "請至少選擇 2 種材料",
+    "examplesTitle": "試試這些範例"
+  },
+  "recipe": {
+    "title": "你的配方",
+    "items": "材料與配比",
+    "amount": "用量",
+    "steps": "製作步驟",
+    "guide": "保姆級指南",
+    "tools": "工具替代",
+    "toolHeader": "專業工具",
+    "homeAlt": "居家替代",
+    "alcohol": "酒精濃度",
+    "safety": "安全提示",
+    "result": {
+      "alcoholHint": "請適量飲用，未成年人禁止飲酒。"
+    },
+    "makePoster": "生成海報",
+    "example": "範例"
+  },
+  "poster": {
+    "title": "海報矩陣",
+    "subtitle": "選擇風格，多維度並行出圖",
+    "selectStyles": "選擇風格",
+    "generate": "生成海報",
+    "status": {
+      "pending": "排隊中",
+      "running": "生成中…",
+      "done": "完成",
+      "failed": "失敗",
+      "partial": "部分完成"
+    },
+    "dimension": {
+      "home_closeup": "居家微釀特寫",
+      "bar_commercial": "酒吧商業宣傳海報",
+      "steps_long": "步驟拆解長圖"
+    },
+    "saveAll": "全部儲存",
+    "save": "儲存",
+    "share": "分享",
+    "retry": "重試這張",
+    "shareCopied": "分享連結已複製"
+  },
+  "lab": {
+    "title": "我的微醺實驗室",
+    "new": "新增打卡",
+    "result": {
+      "success": "成功",
+      "fail": "翻車"
+    },
+    "form": {
+      "image": "照片連結",
+      "imageHint": "貼上一張成品圖片的連結",
+      "recipe": "關聯配方 id",
+      "note": "備註",
+      "result": "這次結果如何？",
+      "missing": "請填寫必填項"
+    },
+    "status": {
+      "private": "私有",
+      "pending": "審核中",
+      "approved": "已公開",
+      "rejected": "已拒絕"
+    },
+    "submitWall": "投稿到海報牆",
+    "submitted": "已投稿待審核",
+    "confirmDelete": "刪除這條打卡？",
+    "empty": "還沒有打卡。調一杯並記錄下來吧！"
+  },
+  "wall": {
+    "title": "創意海報牆",
+    "sort": {
+      "hot": "熱度",
+      "time": "最新"
+    },
+    "empty": "還沒有通過審核的海報"
+  },
+  "onboarding": {
+    "title": "歡迎來到 AI 調酒師",
+    "reopen": "重看新手導覽",
+    "step": {
+      "selectIngredients": "勾選你冰箱裡有的材料",
+      "selectIngredientsBody": "跨分類多選基酒、飲料、水果和輔料。",
+      "recipe": "取得配方",
+      "recipeBody": "AI 為你調出可飲用配方，含精準配比與保姆級指南。",
+      "poster": "生成海報",
+      "posterBody": "把你的作品變成一組商業級海報矩陣。",
+      "checkin": "作品打卡",
+      "checkinBody": "記錄你的結果，並投稿到公開海報牆。"
+    }
+  },
+  "example": {
+    "card": {
+      "title": "試試這些範例"
+    }
+  },
+  "admin": {
+    "title": "管理後台",
+    "nav": {
+      "ingredients": "材料庫",
+      "templates": "風格模板",
+      "moderation": "審核",
+      "dashboard": "看板"
+    },
+    "ingredient": {
+      "title": "材料庫管理",
+      "name": "名稱",
+      "category": "分類",
+      "enabled": "啟用",
+      "names": "各語言名稱",
+      "add": "新增材料",
+      "disabled": "已停用"
+    },
+    "template": {
+      "title": "海報風格模板",
+      "name": "名稱",
+      "dimension": "維度",
+      "prompt": "Prompt",
+      "textAlign": "文字對齊",
+      "watermark": "浮水印位置",
+      "renderMode": "文字渲染模式",
+      "enabled": "啟用",
+      "version": "版本",
+      "preview": "預覽",
+      "add": "新建預設",
+      "renderModel": "模型渲染（藝術字）",
+      "renderBackend": "後端疊加"
+    },
+    "moderation": {
+      "title": "審核佇列",
+      "approve": "通過",
+      "reject": "拒絕",
+      "reason": "理由",
+      "reasonRequired": "拒絕必須填寫理由",
+      "empty": "佇列已清空"
+    },
+    "dashboard": {
+      "title": "大數據監控看板",
+      "recipeCount": "配方生成量",
+      "posterCount": "海報生成量",
+      "submissionCount": "投稿數",
+      "approvalRate": "審核通過率",
+      "topIngredients": "熱門材料",
+      "topStyles": "熱門風格"
+    }
+  },
+  "layout": {
+    "align": {
+      "left": "靠左",
+      "center": "置中",
+      "right": "靠右"
+    },
+    "watermark": {
+      "top-left": "左上",
+      "top-right": "右上",
+      "bottom-left": "左下",
+      "bottom-right": "右下",
+      "center": "置中"
+    }
+  }
+}

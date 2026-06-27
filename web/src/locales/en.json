@@ -1,0 +1,230 @@
+{
+  "common": {
+    "appName": "Home Bartender AI",
+    "tagline": "Turn your fridge into a cocktail bar",
+    "loading": "Loading…",
+    "empty": "Nothing here yet",
+    "error": "Something went wrong",
+    "retry": "Retry",
+    "back": "Back",
+    "next": "Next",
+    "skip": "Skip",
+    "done": "Done",
+    "yes": "Yes",
+    "no": "No",
+    "action": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit",
+      "create": "Create",
+      "submit": "Submit",
+      "generate": "Generate",
+      "confirm": "Confirm",
+      "close": "Close"
+    },
+    "nav": {
+      "fridge": "Fridge",
+      "lab": "My Lab",
+      "wall": "Poster Wall",
+      "help": "Help",
+      "admin": "Admin",
+      "login": "Log in",
+      "logout": "Log out",
+      "language": "Language"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Log in",
+      "account": "Email or phone",
+      "password": "Password",
+      "submit": "Log in",
+      "toRegister": "Need an account? Sign up",
+      "failed": "Invalid account or password"
+    },
+    "register": {
+      "title": "Create account",
+      "displayName": "Display name",
+      "submit": "Sign up",
+      "toLogin": "Already have an account? Log in",
+      "exists": "Account already exists"
+    },
+    "admin": {
+      "title": "Admin console login",
+      "hint": "Operator / admin only"
+    }
+  },
+  "fridge": {
+    "title": "Open the fridge",
+    "subtitle": "Tick everything you have, then mix something up",
+    "category": {
+      "baseSpirit": "Base Spirits",
+      "drink": "Drinks",
+      "fruit": "Fruits",
+      "snack": "Pantry"
+    },
+    "selected": "Selected ({count})",
+    "selectedEmpty": "No ingredients selected yet",
+    "generate": "Mix me a drink",
+    "needMore": "Select at least 2 ingredients",
+    "examplesTitle": "Try these examples"
+  },
+  "recipe": {
+    "title": "Your recipe",
+    "items": "Ingredients & ratios",
+    "amount": "Amount",
+    "steps": "Steps",
+    "guide": "Nanny-level guide",
+    "tools": "Tool substitutions",
+    "toolHeader": "Pro tool",
+    "homeAlt": "Home alternative",
+    "alcohol": "Alcohol",
+    "safety": "Safety notes",
+    "result": {
+      "alcoholHint": "Please drink responsibly. No alcohol for minors."
+    },
+    "makePoster": "Make posters",
+    "example": "Example"
+  },
+  "poster": {
+    "title": "Poster matrix",
+    "subtitle": "Pick styles, we render them in parallel",
+    "selectStyles": "Choose styles",
+    "generate": "Generate posters",
+    "status": {
+      "pending": "Queued",
+      "running": "Rendering…",
+      "done": "Done",
+      "failed": "Failed",
+      "partial": "Partly done"
+    },
+    "dimension": {
+      "home_closeup": "Home close-up",
+      "bar_commercial": "Bar commercial",
+      "steps_long": "Step-by-step"
+    },
+    "saveAll": "Save all",
+    "save": "Save",
+    "share": "Share",
+    "retry": "Retry this one",
+    "shareCopied": "Share link copied"
+  },
+  "lab": {
+    "title": "My Tasting Lab",
+    "new": "New check-in",
+    "result": {
+      "success": "Success",
+      "fail": "Flop"
+    },
+    "form": {
+      "image": "Photo URL",
+      "imageHint": "Paste an image URL of your drink",
+      "recipe": "Linked recipe id",
+      "note": "Note",
+      "result": "How did it go?",
+      "missing": "Please fill in the required fields"
+    },
+    "status": {
+      "private": "Private",
+      "pending": "Under review",
+      "approved": "Public",
+      "rejected": "Rejected"
+    },
+    "submitWall": "Submit to wall",
+    "submitted": "Submitted for review",
+    "confirmDelete": "Delete this check-in?",
+    "empty": "No check-ins yet. Mix something and log it!"
+  },
+  "wall": {
+    "title": "Creative Poster Wall",
+    "sort": {
+      "hot": "Hot",
+      "time": "Newest"
+    },
+    "empty": "No approved posters yet"
+  },
+  "onboarding": {
+    "title": "Welcome to Home Bartender AI",
+    "reopen": "Replay the tour",
+    "step": {
+      "selectIngredients": "Tick what's in your fridge",
+      "selectIngredientsBody": "Multi-select base spirits, drinks, fruits and pantry items.",
+      "recipe": "Get a recipe",
+      "recipeBody": "AI mixes a drinkable recipe with exact ratios and a nanny-level guide.",
+      "poster": "Generate posters",
+      "posterBody": "Turn your drink into a matrix of commercial-grade posters.",
+      "checkin": "Check in",
+      "checkinBody": "Log your result and submit it to the public poster wall."
+    }
+  },
+  "example": {
+    "card": {
+      "title": "Try these examples"
+    }
+  },
+  "admin": {
+    "title": "Admin Console",
+    "nav": {
+      "ingredients": "Ingredients",
+      "templates": "Style Templates",
+      "moderation": "Moderation",
+      "dashboard": "Dashboard"
+    },
+    "ingredient": {
+      "title": "Ingredient Library",
+      "name": "Name",
+      "category": "Category",
+      "enabled": "Enabled",
+      "names": "Names per locale",
+      "add": "Add ingredient",
+      "disabled": "Disabled"
+    },
+    "template": {
+      "title": "Style Templates",
+      "name": "Name",
+      "dimension": "Dimension",
+      "prompt": "Prompt",
+      "textAlign": "Text align",
+      "watermark": "Watermark position",
+      "renderMode": "Text render mode",
+      "enabled": "Enabled",
+      "version": "Version",
+      "preview": "Preview",
+      "add": "New preset",
+      "renderModel": "Model (art type)",
+      "renderBackend": "Backend overlay"
+    },
+    "moderation": {
+      "title": "Moderation Queue",
+      "approve": "Approve",
+      "reject": "Reject",
+      "reason": "Reason",
+      "reasonRequired": "A reason is required to reject",
+      "empty": "Queue is clear"
+    },
+    "dashboard": {
+      "title": "Big-data Monitor",
+      "recipeCount": "Recipes generated",
+      "posterCount": "Posters generated",
+      "submissionCount": "Submissions",
+      "approvalRate": "Approval rate",
+      "topIngredients": "Top ingredients",
+      "topStyles": "Top styles"
+    }
+  },
+  "layout": {
+    "align": {
+      "left": "Left",
+      "center": "Center",
+      "right": "Right"
+    },
+    "watermark": {
+      "top-left": "Top left",
+      "top-right": "Top right",
+      "bottom-left": "Bottom left",
+      "bottom-right": "Bottom right",
+      "center": "Center"
+    }
+  }
+}

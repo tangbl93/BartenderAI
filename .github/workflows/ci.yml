@@ -1,0 +1,159 @@
+# ============================================================
+# Home Bartender AI — CI
+# ------------------------------------------------------------
+# Three independent lanes that run only when their source dir contains a
+# real project (presence of package.json / pubspec.yaml). On a greenfield
+# checkout the lanes short-circuit to a no-op so CI stays green until each
+# team lands code.
+#
+#   backend : Node 22 — npm ci, lint, test, build         (./backend)
+#   web     : Node 22 — npm ci, lint, test, build         (./web)
+#   app     : Flutter stable — pub get, analyze, test      (./app)
+#
+# Compose validation runs unconditionally so infra changes are gated.
+# ============================================================
+
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # ---------------------------------------------------------- detect
+  # Decide which lanes have code so downstream jobs can skip cleanly.
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.check.outputs.backend }}
+      web: ${{ steps.check.outputs.web }}
+      app: ${{ steps.check.outputs.app }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: check
+        shell: bash
+        run: |
+          set -euo pipefail
+          backend=false; web=false; app=false
+          [ -f backend/package.json ] && backend=true
+          [ -f web/package.json ]     && web=true
+          [ -f app/pubspec.yaml ]     && app=true
+          echo "backend=$backend" >> "$GITHUB_OUTPUT"
+          echo "web=$web"         >> "$GITHUB_OUTPUT"
+          echo "app=$app"         >> "$GITHUB_OUTPUT"
+          echo "Detected -> backend:$backend web:$web app:$app"
+
+  # ---------------------------------------------------------- backend
+  backend:
+    needs: detect
+    if: needs.detect.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - name: Lint
+        run: npm run lint --if-present
+      - name: Test
+        run: npm test --if-present
+      - name: Build
+        run: npm run build --if-present
+
+  # ---------------------------------------------------------- web
+  web:
+    needs: detect
+    if: needs.detect.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - name: Lint
+        run: npm run lint --if-present
+      - name: Unit test (Vitest)
+        run: npm test --if-present
+      - name: Build
+        run: npm run build --if-present
+      # Playwright visual-regression lane (see scripts/screenshot-baseline.md).
+      # Runs only if a playwright config is present; uploads diffs on failure.
+      - name: Install Playwright browsers
+        if: ${{ hashFiles('web/playwright.config.*') != '' }}
+        run: npx playwright install --with-deps chromium
+      - name: Visual snapshots
+        if: ${{ hashFiles('web/playwright.config.*') != '' }}
+        run: npm run test:visual --if-present
+      - name: Upload Playwright report
+        if: ${{ failure() && hashFiles('web/playwright.config.*') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: web/playwright-report/
+          retention-days: 7
+
+  # ---------------------------------------------------------- app
+  app:
+    needs: detect
+    if: needs.detect.outputs.app == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter --version
+      - name: Pub get
+        run: flutter pub get
+      - name: Analyze
+        run: flutter analyze
+      # Includes widget + golden tests (see scripts/screenshot-baseline.md).
+      - name: Test
+        run: flutter test
+      - name: Upload golden failures
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: flutter-golden-failures
+          path: app/test/**/failures/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  # ---------------------------------------------------------- infra
+  # Always validate the compose topology — infra is present from day one.
+  compose-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate docker compose config
+        run: |
+          set -euo pipefail
+          # Provide a throwaway env so interpolation resolves; no secrets.
+          cp .env.example .env
+          docker compose config -q
+          echo "docker compose config OK"

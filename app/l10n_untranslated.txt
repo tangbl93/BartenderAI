@@ -1,0 +1,9 @@
+{
+  "zh": [
+    "wallSortHot"
+  ],
+
+  "zh_TW": [
+    "wallSortHot"
+  ]
+}

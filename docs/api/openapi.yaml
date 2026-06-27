@@ -1,0 +1,424 @@
+openapi: 3.0.3
+info:
+  title: Home Bartender AI API
+  version: 1.0.0
+  description: >
+    全场景 AI 调酒师后端契约（单一事实来源）。覆盖鉴权、材料库、配方生成、
+    海报生成、风格模板、微醺实验室、海报墙审核、大数据监控、示例与 i18n。
+    所有面向 AI 的生成接口均接受 `locale` 以驱动多语言输出。
+servers:
+  - url: http://localhost:3000/api/v1
+    description: 本地开发
+tags:
+  - { name: meta, description: 健康检查与元信息 }
+  - { name: auth, description: 用户与后台鉴权 }
+  - { name: ingredients, description: 材料库（冰箱） }
+  - { name: recipes, description: 配方生成与示例 }
+  - { name: posters, description: 海报矩阵生成 }
+  - { name: templates, description: 海报风格模板 }
+  - { name: lab, description: 我的微醺实验室 }
+  - { name: wall, description: 海报墙与审核 }
+  - { name: stats, description: 大数据监控 }
+
+paths:
+  /health:
+    get:
+      tags: [meta]
+      summary: 健康检查
+      security: []
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Health' } } } }
+
+  /meta/locales:
+    get:
+      tags: [meta]
+      summary: 支持的语言列表
+      security: []
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: array, items: { type: string }, example: [en, zh-CN, zh-TW, ja, ko] } } } }
+
+  # ---------------- AUTH ----------------
+  /auth/register:
+    post:
+      tags: [auth]
+      summary: 前台用户注册
+      security: []
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/RegisterDto' } } } }
+      responses:
+        '201': { description: 注册成功, content: { application/json: { schema: { $ref: '#/components/schemas/AuthResult' } } } }
+        '409': { description: 账号已存在, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+
+  /auth/login:
+    post:
+      tags: [auth]
+      summary: 前台用户登录
+      security: []
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/LoginDto' } } } }
+      responses:
+        '200': { description: 登录成功, content: { application/json: { schema: { $ref: '#/components/schemas/AuthResult' } } } }
+        '401': { description: 凭证错误（不区分用户不存在/密码错误）, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+
+  /auth/admin/login:
+    post:
+      tags: [auth]
+      summary: 后台管理员/运营登录
+      security: []
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/LoginDto' } } } }
+      responses:
+        '200': { description: 登录成功, content: { application/json: { schema: { $ref: '#/components/schemas/AuthResult' } } } }
+        '401': { description: 凭证错误 }
+
+  /auth/logout:
+    post:
+      tags: [auth]
+      summary: 注销（令牌失效）
+      responses: { '204': { description: 已注销 } }
+
+  /auth/me:
+    get:
+      tags: [auth]
+      summary: 当前用户信息
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/User' } } } }
+        '401': { description: 未登录 }
+
+  # ---------------- INGREDIENTS ----------------
+  /ingredients:
+    get:
+      tags: [ingredients]
+      summary: 前台"冰箱"材料（仅启用，按语言返回名称）
+      security: []
+      parameters:
+        - { name: locale, in: query, schema: { type: string, default: en } }
+        - { name: category, in: query, schema: { $ref: '#/components/schemas/IngredientCategory' } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Ingredient' } } } } }
+
+  /admin/ingredients:
+    get:
+      tags: [ingredients]
+      summary: 管理端材料列表（含停用）
+      responses: { '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Ingredient' } } } } } }
+    post:
+      tags: [ingredients]
+      summary: 新增材料
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/IngredientDto' } } } }
+      responses:
+        '201': { description: 已创建, content: { application/json: { schema: { $ref: '#/components/schemas/Ingredient' } } } }
+        '400': { description: 分类非法 }
+  /admin/ingredients/{id}:
+    put:
+      tags: [ingredients]
+      summary: 编辑材料
+      parameters: [ { name: id, in: path, required: true, schema: { type: string } } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/IngredientDto' } } } }
+      responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Ingredient' } } } } }
+    delete:
+      tags: [ingredients]
+      summary: 删除/停用材料（被引用时停用替代硬删）
+      parameters: [ { name: id, in: path, required: true, schema: { type: string } } ]
+      responses: { '204': { description: 已删除/停用 } }
+
+  # ---------------- RECIPES ----------------
+  /recipes/generate:
+    post:
+      tags: [recipes]
+      summary: 盲盒配方生成（仅用所选材料、精准配比、安全约束、保姆级指南、酒名文案）
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/RecipeGenerateDto' } } } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Recipe' } } } }
+        '422': { description: 选材不足，需补充材料, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+  /recipes/{id}:
+    get:
+      tags: [recipes]
+      summary: 获取配方
+      security: []
+      parameters: [ { name: id, in: path, required: true, schema: { type: string } } ]
+      responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Recipe' } } } } }
+  /recipes/examples:
+    get:
+      tags: [recipes]
+      summary: 内置 2~3 组示例案例（新手可点击查看）
+      security: []
+      parameters: [ { name: locale, in: query, schema: { type: string, default: en } } ]
+      responses: { '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Recipe' } } } } } }
+
+  # ---------------- POSTERS ----------------
+  /posters/jobs:
+    post:
+      tags: [posters]
+      summary: 为配方创建海报生成任务（多维度并行）
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/PosterJobDto' } } } }
+      responses: { '202': { description: 任务已创建, content: { application/json: { schema: { $ref: '#/components/schemas/PosterJob' } } } } }
+  /posters/jobs/{id}:
+    get:
+      tags: [posters]
+      summary: 查询海报任务进度（含各维度状态，可轮询/SSE）
+      parameters: [ { name: id, in: path, required: true, schema: { type: string } } ]
+      responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/PosterJob' } } } } }
+  /posters/{id}/retry:
+    post:
+      tags: [posters]
+      summary: 单张海报失败重试
+      parameters: [ { name: id, in: path, required: true, schema: { type: string } } ]
+      responses: { '202': { description: 已重试 } }
+
+  # ---------------- TEMPLATES ----------------
+  /templates:
+    get:
+      tags: [templates]
+      summary: 前台可选风格模板（仅启用）
+      security: []
+      responses: { '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/StyleTemplate' } } } } } }
+  /admin/templates:
+    get:
+      tags: [templates]
+      summary: 管理端模板列表（含停用）
+      responses: { '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/StyleTemplate' } } } } } }
+    post:
+      tags: [templates]
+      summary: 新建风格预设
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/StyleTemplateDto' } } } }
+      responses: { '201': { description: 已创建, content: { application/json: { schema: { $ref: '#/components/schemas/StyleTemplate' } } } } }
+  /admin/templates/{id}:
+    put:
+      tags: [templates]
+      summary: 编辑模板（排版微调、启停；仅对新海报生效）
+      parameters: [ { name: id, in: path, required: true, schema: { type: string } } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/StyleTemplateDto' } } } }
+      responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/StyleTemplate' } } } } }
+    delete:
+      tags: [templates]
+      summary: 删除/停用模板
+      parameters: [ { name: id, in: path, required: true, schema: { type: string } } ]
+      responses: { '204': { description: 已删除/停用 } }
+  /admin/templates/{id}/preview:
+    post:
+      tags: [templates]
+      summary: 预览模板效果
+      parameters: [ { name: id, in: path, required: true, schema: { type: string } } ]
+      responses: { '200': { description: OK, content: { application/json: { schema: { type: object, properties: { previewUrl: { type: string } } } } } } }
+
+  # ---------------- LAB ----------------
+  /lab/entries:
+    get:
+      tags: [lab]
+      summary: 我的实验室列表（时间倒序，仅本人）
+      responses: { '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/LabEntry' } } } } } }
+    post:
+      tags: [lab]
+      summary: 作品打卡（拍照上传、关联配方、成功/翻车）
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/LabEntryDto' } } } }
+      responses:
+        '201': { description: 已创建, content: { application/json: { schema: { $ref: '#/components/schemas/LabEntry' } } } }
+        '400': { description: 缺少必填字段 }
+  /lab/entries/{id}:
+    get:
+      tags: [lab]
+      summary: 作品详情（私有仅本人）
+      parameters: [ { name: id, in: path, required: true, schema: { type: string } } ]
+      responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/LabEntry' } } } }, '403': { description: 无权限 } }
+    put:
+      tags: [lab]
+      summary: 编辑作品（仅作者）
+      parameters: [ { name: id, in: path, required: true, schema: { type: string } } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/LabEntryDto' } } } }
+      responses: { '200': { description: OK }, '403': { description: 无权限 } }
+    delete:
+      tags: [lab]
+      summary: 删除作品（仅作者）
+      parameters: [ { name: id, in: path, required: true, schema: { type: string } } ]
+      responses: { '204': { description: 已删除 }, '403': { description: 无权限 } }
+  /lab/entries/{id}/submit:
+    post:
+      tags: [lab]
+      summary: 公开投稿至海报墙（置为待审核）
+      parameters: [ { name: id, in: path, required: true, schema: { type: string } } ]
+      responses: { '200': { description: 已投稿待审核 } }
+
+  # ---------------- WALL & MODERATION ----------------
+  /wall:
+    get:
+      tags: [wall]
+      summary: 海报墙（仅展示已通过，支持排序）
+      security: []
+      parameters:
+        - { name: sort, in: query, schema: { type: string, enum: [hot, time], default: time } }
+        - { name: page, in: query, schema: { type: integer, default: 1 } }
+      responses: { '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/LabEntry' } } } } } }
+  /admin/moderation/queue:
+    get:
+      tags: [wall]
+      summary: 待审核队列
+      responses: { '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/LabEntry' } } } } } }
+  /admin/moderation/{id}:
+    post:
+      tags: [wall]
+      summary: 审核（通过/拒绝，拒绝须填理由，记录可追溯）
+      parameters: [ { name: id, in: path, required: true, schema: { type: string } } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ModerationDto' } } } }
+      responses: { '200': { description: 已处理 }, '400': { description: 拒绝缺少理由 } }
+
+  # ---------------- STATS ----------------
+  /admin/stats/dashboard:
+    get:
+      tags: [stats]
+      summary: 大数据监控看板
+      parameters:
+        - { name: from, in: query, schema: { type: string, format: date } }
+        - { name: to, in: query, schema: { type: string, format: date } }
+      responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Dashboard' } } } } }
+
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+  schemas:
+    Health: { type: object, properties: { status: { type: string, example: ok }, uptime: { type: number } } }
+    Error: { type: object, properties: { statusCode: { type: integer }, message: { type: string }, code: { type: string } } }
+
+    IngredientCategory: { type: string, enum: [base_spirit, drink, fruit, snack] }
+    Role: { type: string, enum: [user, operator, admin] }
+
+    RegisterDto:
+      type: object
+      required: [account, password]
+      properties: { account: { type: string, description: 邮箱或手机号 }, password: { type: string, minLength: 8 }, displayName: { type: string } }
+    LoginDto:
+      type: object
+      required: [account, password]
+      properties: { account: { type: string }, password: { type: string } }
+    AuthResult:
+      type: object
+      properties: { accessToken: { type: string }, refreshToken: { type: string }, user: { $ref: '#/components/schemas/User' } }
+    User:
+      type: object
+      properties: { id: { type: string }, account: { type: string }, displayName: { type: string }, role: { $ref: '#/components/schemas/Role' } }
+
+    Ingredient:
+      type: object
+      properties:
+        id: { type: string }
+        category: { $ref: '#/components/schemas/IngredientCategory' }
+        name: { type: string, description: 按请求 locale 解析后的显示名 }
+        enabled: { type: boolean }
+    IngredientDto:
+      type: object
+      required: [category, names]
+      properties:
+        category: { $ref: '#/components/schemas/IngredientCategory' }
+        names: { type: object, description: "多语言名称 { en, zh-CN, zh-TW, ja, ko }", additionalProperties: { type: string } }
+        enabled: { type: boolean, default: true }
+
+    RecipeGenerateDto:
+      type: object
+      required: [ingredientIds, locale]
+      properties:
+        ingredientIds: { type: array, items: { type: string }, minItems: 2 }
+        locale: { type: string, default: en }
+    Recipe:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string, description: 创意酒名 }
+        tagline: { type: string, description: 微醺文案 }
+        locale: { type: string }
+        items: { type: array, items: { $ref: '#/components/schemas/RecipeItem' } }
+        steps: { type: array, items: { type: string }, description: 极简分步骤 }
+        toolSubstitutions: { type: array, items: { type: object, properties: { tool: { type: string }, homeAlternative: { type: string } } } }
+        alcoholRange: { type: string, example: "8-12% ABV" }
+        safetyNotes: { type: array, items: { type: string }, description: 含适量饮用/未成年人禁饮提示 }
+        isExample: { type: boolean, default: false }
+    RecipeItem:
+      type: object
+      properties: { ingredientId: { type: string }, name: { type: string }, amount: { type: string, example: "45 ml" }, optional: { type: boolean, default: false } }
+
+    PosterJobDto:
+      type: object
+      required: [recipeId]
+      properties:
+        recipeId: { type: string }
+        templateIds: { type: array, items: { type: string }, description: 留空则用三种默认预设 }
+        locale: { type: string, default: en }
+    PosterJob:
+      type: object
+      properties:
+        id: { type: string }
+        recipeId: { type: string }
+        status: { type: string, enum: [pending, running, partial, done, failed] }
+        posters: { type: array, items: { $ref: '#/components/schemas/Poster' } }
+    Poster:
+      type: object
+      properties:
+        id: { type: string }
+        dimension: { type: string, enum: [home_closeup, bar_commercial, steps_long] }
+        templateId: { type: string }
+        status: { type: string, enum: [pending, running, done, failed] }
+        imageUrl: { type: string }
+        textSnapshot: { type: object, description: 海报文字快照（与配方一致） }
+
+    StyleTemplate:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        dimension: { type: string, enum: [home_closeup, bar_commercial, steps_long, custom] }
+        prompt: { type: string }
+        layout: { $ref: '#/components/schemas/LayoutConfig' }
+        textRenderMode: { type: string, enum: [model, backend], description: 艺术字模型渲染 vs 后端叠加 }
+        enabled: { type: boolean }
+        version: { type: integer }
+    StyleTemplateDto:
+      type: object
+      required: [name, prompt, dimension]
+      properties:
+        name: { type: string }
+        dimension: { type: string, enum: [home_closeup, bar_commercial, steps_long, custom] }
+        prompt: { type: string }
+        layout: { $ref: '#/components/schemas/LayoutConfig' }
+        textRenderMode: { type: string, enum: [model, backend], default: backend }
+        enabled: { type: boolean, default: true }
+    LayoutConfig:
+      type: object
+      properties:
+        textAlign: { type: string, enum: [left, center, right], default: center }
+        watermarkPosition: { type: string, enum: [top-left, top-right, bottom-left, bottom-right, center], default: bottom-right }
+
+    LabEntry:
+      type: object
+      properties:
+        id: { type: string }
+        recipeId: { type: string }
+        imageUrl: { type: string }
+        result: { type: string, enum: [success, fail] }
+        note: { type: string }
+        isPublic: { type: boolean }
+        moderationStatus: { type: string, enum: [private, pending, approved, rejected] }
+        createdAt: { type: string, format: date-time }
+    LabEntryDto:
+      type: object
+      required: [recipeId, imageUrl, result]
+      properties:
+        recipeId: { type: string }
+        imageUrl: { type: string }
+        result: { type: string, enum: [success, fail] }
+        note: { type: string }
+
+    ModerationDto:
+      type: object
+      required: [decision]
+      properties:
+        decision: { type: string, enum: [approve, reject] }
+        reason: { type: string, description: reject 时必填 }
+
+    Dashboard:
+      type: object
+      properties:
+        recipeCount: { type: integer }
+        posterCount: { type: integer }
+        submissionCount: { type: integer }
+        approvalRate: { type: number }
+        topIngredients: { type: array, items: { type: object, properties: { name: { type: string }, count: { type: integer } } } }
+        topStyles: { type: array, items: { type: object, properties: { name: { type: string }, count: { type: integer } } } }
+
+security:
+  - bearerAuth: []

@@ -1,0 +1,230 @@
+{
+  "common": {
+    "appName": "AI 바텐더",
+    "tagline": "냉장고를 칵테일 바로 바꿔보세요",
+    "loading": "불러오는 중…",
+    "empty": "아직 아무것도 없습니다",
+    "error": "문제가 발생했습니다",
+    "retry": "다시 시도",
+    "back": "뒤로",
+    "next": "다음",
+    "skip": "건너뛰기",
+    "done": "완료",
+    "yes": "예",
+    "no": "아니요",
+    "action": {
+      "save": "저장",
+      "cancel": "취소",
+      "delete": "삭제",
+      "edit": "편집",
+      "create": "생성",
+      "submit": "제출",
+      "generate": "생성",
+      "confirm": "확인",
+      "close": "닫기"
+    },
+    "nav": {
+      "fridge": "냉장고",
+      "lab": "내 실험실",
+      "wall": "포스터 월",
+      "help": "도움말",
+      "admin": "관리자",
+      "login": "로그인",
+      "logout": "로그아웃",
+      "language": "언어"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "로그인",
+      "account": "이메일 또는 전화번호",
+      "password": "비밀번호",
+      "submit": "로그인",
+      "toRegister": "계정이 없으신가요? 가입하기",
+      "failed": "계정 또는 비밀번호가 올바르지 않습니다"
+    },
+    "register": {
+      "title": "계정 만들기",
+      "displayName": "표시 이름",
+      "submit": "가입",
+      "toLogin": "이미 계정이 있으신가요? 로그인",
+      "exists": "이미 존재하는 계정입니다"
+    },
+    "admin": {
+      "title": "관리자 콘솔 로그인",
+      "hint": "운영자 / 관리자 전용"
+    }
+  },
+  "fridge": {
+    "title": "냉장고 열기",
+    "subtitle": "가진 재료를 체크하고 한 잔 만들어 보세요",
+    "category": {
+      "baseSpirit": "기주",
+      "drink": "음료",
+      "fruit": "과일",
+      "snack": "부재료"
+    },
+    "selected": "선택됨 ({count})",
+    "selectedEmpty": "아직 선택된 재료가 없습니다",
+    "generate": "한 잔 만들어줘",
+    "needMore": "재료를 2개 이상 선택하세요",
+    "examplesTitle": "예시를 사용해 보세요"
+  },
+  "recipe": {
+    "title": "당신의 레시피",
+    "items": "재료와 비율",
+    "amount": "용량",
+    "steps": "단계",
+    "guide": "친절 가이드",
+    "tools": "도구 대체",
+    "toolHeader": "전문 도구",
+    "homeAlt": "가정용 대체",
+    "alcohol": "알코올 도수",
+    "safety": "안전 안내",
+    "result": {
+      "alcoholHint": "적당히 즐기세요. 미성년자 음주 금지."
+    },
+    "makePoster": "포스터 만들기",
+    "example": "예시"
+  },
+  "poster": {
+    "title": "포스터 매트릭스",
+    "subtitle": "스타일을 고르면 병렬로 렌더링합니다",
+    "selectStyles": "스타일 선택",
+    "generate": "포스터 생성",
+    "status": {
+      "pending": "대기 중",
+      "running": "생성 중…",
+      "done": "완료",
+      "failed": "실패",
+      "partial": "일부 완료"
+    },
+    "dimension": {
+      "home_closeup": "홈 클로즈업",
+      "bar_commercial": "바 상업 포스터",
+      "steps_long": "단계별 롱 이미지"
+    },
+    "saveAll": "모두 저장",
+    "save": "저장",
+    "share": "공유",
+    "retry": "이 항목 재시도",
+    "shareCopied": "공유 링크를 복사했습니다"
+  },
+  "lab": {
+    "title": "나의 테이스팅 랩",
+    "new": "새 체크인",
+    "result": {
+      "success": "성공",
+      "fail": "실패"
+    },
+    "form": {
+      "image": "사진 URL",
+      "imageHint": "음료 이미지 URL을 붙여넣으세요",
+      "recipe": "연결된 레시피 id",
+      "note": "메모",
+      "result": "결과는 어땠나요?",
+      "missing": "필수 항목을 입력하세요"
+    },
+    "status": {
+      "private": "비공개",
+      "pending": "심사 중",
+      "approved": "공개",
+      "rejected": "거절됨"
+    },
+    "submitWall": "월에 제출",
+    "submitted": "심사를 위해 제출됨",
+    "confirmDelete": "이 체크인을 삭제할까요?",
+    "empty": "아직 체크인이 없습니다. 한 잔 만들고 기록해 보세요!"
+  },
+  "wall": {
+    "title": "크리에이티브 포스터 월",
+    "sort": {
+      "hot": "인기",
+      "time": "최신"
+    },
+    "empty": "아직 승인된 포스터가 없습니다"
+  },
+  "onboarding": {
+    "title": "AI 바텐더에 오신 것을 환영합니다",
+    "reopen": "튜토리얼 다시 보기",
+    "step": {
+      "selectIngredients": "냉장고에 있는 재료를 체크하세요",
+      "selectIngredientsBody": "기주, 음료, 과일, 부재료를 여러 개 선택하세요.",
+      "recipe": "레시피 받기",
+      "recipeBody": "AI가 정확한 비율과 친절 가이드가 있는 마실 수 있는 레시피를 만듭니다.",
+      "poster": "포스터 생성",
+      "posterBody": "당신의 음료를 상업용 포스터 매트릭스로 만드세요.",
+      "checkin": "체크인",
+      "checkinBody": "결과를 기록하고 공개 포스터 월에 제출하세요."
+    }
+  },
+  "example": {
+    "card": {
+      "title": "예시를 사용해 보세요"
+    }
+  },
+  "admin": {
+    "title": "관리자 콘솔",
+    "nav": {
+      "ingredients": "재료",
+      "templates": "스타일 템플릿",
+      "moderation": "심사",
+      "dashboard": "대시보드"
+    },
+    "ingredient": {
+      "title": "재료 라이브러리",
+      "name": "이름",
+      "category": "분류",
+      "enabled": "활성화",
+      "names": "언어별 이름",
+      "add": "재료 추가",
+      "disabled": "비활성화됨"
+    },
+    "template": {
+      "title": "스타일 템플릿",
+      "name": "이름",
+      "dimension": "차원",
+      "prompt": "프롬프트",
+      "textAlign": "텍스트 정렬",
+      "watermark": "워터마크 위치",
+      "renderMode": "텍스트 렌더링 모드",
+      "enabled": "활성화",
+      "version": "버전",
+      "preview": "미리보기",
+      "add": "새 프리셋",
+      "renderModel": "모델 렌더링(아트 글자)",
+      "renderBackend": "백엔드 오버레이"
+    },
+    "moderation": {
+      "title": "심사 대기열",
+      "approve": "승인",
+      "reject": "거절",
+      "reason": "사유",
+      "reasonRequired": "거절하려면 사유가 필요합니다",
+      "empty": "대기열이 비었습니다"
+    },
+    "dashboard": {
+      "title": "빅데이터 모니터링 대시보드",
+      "recipeCount": "생성된 레시피",
+      "posterCount": "생성된 포스터",
+      "submissionCount": "제출 수",
+      "approvalRate": "승인율",
+      "topIngredients": "인기 재료",
+      "topStyles": "인기 스타일"
+    }
+  },
+  "layout": {
+    "align": {
+      "left": "왼쪽",
+      "center": "가운데",
+      "right": "오른쪽"
+    },
+    "watermark": {
+      "top-left": "왼쪽 위",
+      "top-right": "오른쪽 위",
+      "bottom-left": "왼쪽 아래",
+      "bottom-right": "오른쪽 아래",
+      "center": "가운데"
+    }
+  }
+}
