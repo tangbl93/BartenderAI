@@ -17,7 +17,6 @@ Repositories buildRepositories(AppConfig config, {ApiService? apiService}) {
       recipes: mock,
       posters: mock,
       lab: mock,
-      wall: mock,
     );
   }
   final api = ApiRepository(
@@ -29,6 +28,5 @@ Repositories buildRepositories(AppConfig config, {ApiService? apiService}) {
     recipes: api,
     posters: api,
     lab: api,
-    wall: api,
   );
 }

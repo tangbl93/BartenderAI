@@ -14,7 +14,7 @@ import {
 } from '@nestjs/swagger';
 import { ExtractJwt } from 'passport-jwt';
 import { AuthService } from './auth.service';
-import { AuthResultDto, LoginDto, RegisterDto, UserDto } from './dto/auth.dto';
+import { AuthResultDto, DeviceLoginDto, LoginDto, RegisterDto, UserDto } from './dto/auth.dto';
 import { Public } from '../common/decorators/public.decorator';
 import { CurrentUser, AuthUser } from '../common/decorators/current-user.decorator';
 
@@ -47,6 +47,15 @@ export class AuthController {
   @ApiOkResponse({ type: AuthResultDto })
   adminLogin(@Body() dto: LoginDto): Promise<AuthResultDto> {
     return this.auth.adminLogin(dto);
+  }
+
+  @Public()
+  @Post('device')
+  @HttpCode(200)
+  @ApiOperation({ summary: '设备自动登录（Android 以 GAID 作为 UID）' })
+  @ApiOkResponse({ type: AuthResultDto })
+  deviceLogin(@Body() dto: DeviceLoginDto): Promise<AuthResultDto> {
+    return this.auth.deviceLogin(dto);
   }
 
   @ApiBearerAuth()

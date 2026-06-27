@@ -99,6 +99,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get authLogout => '로그아웃';
 
   @override
+  String get authPrivacyGaid =>
+      '기기의 광고 ID(GAID)를 사용해 자동으로 로그인합니다. Android 「설정 → 개인정보 보호 → 광고」에서 언제든 재설정할 수 있습니다.';
+
+  @override
+  String get authSigningIn => '로그인 중…';
+
+  @override
   String get navFridge => '냉장고';
 
   @override
@@ -307,4 +314,77 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get moderationRejected => '거부됨';
+
+  @override
+  String get splashTagline => '칵테일, 이제 손쉽게';
+
+  @override
+  String get onboardingStep1Title => '냉장고 스캔';
+
+  @override
+  String get onboardingStep1Desc =>
+      '사진을 찍거나 재료를 고르면, AI가 당신만의 칵테일 레시피를 즉시 만들어 드려요.';
+
+  @override
+  String get onboardingStep2Title => 'AI 믹솔로지';
+
+  @override
+  String get onboardingStep2Desc => '보유 재료와 취향에 맞춘 특별한 칵테일을 발견하세요.';
+
+  @override
+  String get onboardingStep3Title => '사이버 포스터';
+
+  @override
+  String get onboardingStep3Desc => '작품을 원클릭으로 공유하기 좋은 SNS 포스터로 만들어 보세요.';
+
+  @override
+  String get onboardingStep4Title => '커뮤니티 월';
+
+  @override
+  String get onboardingStep4Desc => '전 세계 홈 바텐더와 연결되세요. 작품을 공유하고 순위를 올려보세요.';
+
+  @override
+  String get onboardingStartButton => '믹스 시작';
+
+  @override
+  String get homeTitle => '내 작품';
+
+  @override
+  String get homeEmpty => '아직 작품이 없어요. 「제작」을 눌러 시작하세요';
+
+  @override
+  String get craftMake => '제작';
+
+  @override
+  String get craftGeneratePoster => '공유 이미지 생성';
+
+  @override
+  String get craftConfirmTitle => '저장 확인';
+
+  @override
+  String get craftAddPhotos => '완성 사진 추가';
+
+  @override
+  String get craftPhotosOptional => '선택, 최대 3장';
+
+  @override
+  String get craftSave => '작품 저장';
+
+  @override
+  String get craftSaved => '내 작품에 저장됨';
+
+  @override
+  String get profileUserId => '사용자 ID';
+
+  @override
+  String get profileContactUs => '문의하기';
+
+  @override
+  String get profilePrivacy => '개인정보처리방침';
+
+  @override
+  String get profileTerms => '이용약관';
+
+  @override
+  String get profileCopied => '복사됨';
 }

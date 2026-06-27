@@ -15,6 +15,8 @@ import { PostersModule } from './posters/posters.module';
 import { LabModule } from './lab/lab.module';
 import { ModerationModule } from './moderation/moderation.module';
 import { StatsModule } from './stats/stats.module';
+import { AdminModule } from './admin/admin.module';
+import { StorageModule } from './storage/storage.module';
 
 @Module({
   imports: [
@@ -35,6 +37,8 @@ import { StatsModule } from './stats/stats.module';
     LabModule,
     ModerationModule,
     StatsModule,
+    StorageModule,
+    AdminModule,
   ],
   providers: [
     // Global JWT auth guard; @Public() opts routes out.

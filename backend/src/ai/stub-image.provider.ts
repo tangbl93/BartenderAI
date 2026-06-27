@@ -15,8 +15,11 @@ export class StubImageProvider implements ImageProvider {
   async generateImage(
     req: ImageGenerationRequest,
   ): Promise<ImageGenerationResult> {
+    // Fold the reference image marker into the hash so tests can assert it was
+    // forwarded (i2i). The stub never inspects the actual pixels.
+    const refMarker = req.referenceImage ? '|i2i' : '';
     const hash = createHash('sha1')
-      .update(`${req.seed || ''}|${req.prompt}`)
+      .update(`${req.seed || ''}${refMarker}|${req.prompt}`)
       .digest('hex')
       .slice(0, 12);
     const size = req.size || '1024x1024';

@@ -91,19 +91,27 @@ export class PostersService {
 
     // Run generation (awaited so the stub pipeline is deterministic for tests;
     // a real deployment would dispatch to a queue and return immediately).
-    await this.runJob(saved.id, recipe);
+    // The i2i reference image (base64 data URL from the App) is forwarded to
+    // the image provider but NEVER persisted.
+    await this.runJob(saved.id, recipe, dto.referenceImage);
 
     return this.findJob(saved.id);
   }
 
-  private async runJob(jobId: string, recipe: RecipeEntity): Promise<void> {
+  private async runJob(
+    jobId: string,
+    recipe: RecipeEntity,
+    referenceImage?: string,
+  ): Promise<void> {
     const job = await this.jobs.findOne({ where: { id: jobId } });
     if (!job) return;
     job.status = 'running';
     await this.jobs.save(job);
 
     await Promise.all(
-      job.posters.map((poster) => this.generatePoster(poster, recipe)),
+      job.posters.map((poster) =>
+        this.generatePoster(poster, recipe, referenceImage),
+      ),
     );
 
     await this.recomputeJobStatus(jobId);
@@ -112,6 +120,7 @@ export class PostersService {
   private async generatePoster(
     poster: PosterEntity,
     recipe: RecipeEntity,
+    referenceImage?: string,
   ): Promise<void> {
     poster.status = 'running';
     poster.error = null;
@@ -127,6 +136,9 @@ export class PostersService {
           prompt: this.buildPrompt(snapshot, recipe),
           size,
           seed: `${poster.id}-${snapshot.version}`,
+          // Forward i2i reference image to the provider when supplied. The
+          // provider is responsible for the actual /images/edits call.
+          referenceImage,
         }),
         timeoutMs,
       );

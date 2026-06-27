@@ -284,6 +284,18 @@ abstract class AppLocalizations {
   /// **'Sign out'**
   String get authLogout;
 
+  /// Privacy notice explaining GAID usage for device auto-login
+  ///
+  /// In en, this message translates to:
+  /// **'We use your device\'s advertising ID to sign you in automatically. You can reset it anytime in Android Settings > Privacy > Ads.'**
+  String get authPrivacyGaid;
+
+  /// No description provided for @authSigningIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Signing you in…'**
+  String get authSigningIn;
+
   /// No description provided for @navFridge.
   ///
   /// In en, this message translates to:
@@ -691,6 +703,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Rejected'**
   String get moderationRejected;
+
+  /// Splash screen tagline under the brand name.
+  ///
+  /// In en, this message translates to:
+  /// **'Mixology, now within reach'**
+  String get splashTagline;
+
+  /// No description provided for @onboardingStep1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan Your Fridge'**
+  String get onboardingStep1Title;
+
+  /// No description provided for @onboardingStep1Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Snap a photo or list your ingredients. Our AI will instantly craft personalized cocktail recipes just for you.'**
+  String get onboardingStep1Desc;
+
+  /// No description provided for @onboardingStep2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Mixology'**
+  String get onboardingStep2Title;
+
+  /// No description provided for @onboardingStep2Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Discover unique cocktails tailored specifically to your inventory and taste profile.'**
+  String get onboardingStep2Desc;
+
+  /// No description provided for @onboardingStep3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Cyber Posters'**
+  String get onboardingStep3Title;
+
+  /// No description provided for @onboardingStep3Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate stunning, shareable social media posters for your liquid creations in a single click.'**
+  String get onboardingStep3Desc;
+
+  /// No description provided for @onboardingStep4Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Community Wall'**
+  String get onboardingStep4Title;
+
+  /// No description provided for @onboardingStep4Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Join a global network of home mixologists. Share your drinks and climb the leaderboard.'**
+  String get onboardingStep4Desc;
+
+  /// No description provided for @onboardingStartButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Mixing'**
+  String get onboardingStartButton;
+
+  /// No description provided for @homeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Creations'**
+  String get homeTitle;
+
+  /// No description provided for @homeEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No creations yet. Tap Craft to start.'**
+  String get homeEmpty;
+
+  /// No description provided for @craftMake.
+  ///
+  /// In en, this message translates to:
+  /// **'Craft'**
+  String get craftMake;
+
+  /// No description provided for @craftGeneratePoster.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate share image'**
+  String get craftGeneratePoster;
+
+  /// No description provided for @craftConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save creation'**
+  String get craftConfirmTitle;
+
+  /// No description provided for @craftAddPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Add finished photos'**
+  String get craftAddPhotos;
+
+  /// No description provided for @craftPhotosOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional, up to 3'**
+  String get craftPhotosOptional;
+
+  /// No description provided for @craftSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save creation'**
+  String get craftSave;
+
+  /// No description provided for @craftSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to your creations'**
+  String get craftSaved;
+
+  /// No description provided for @profileUserId.
+  ///
+  /// In en, this message translates to:
+  /// **'User ID'**
+  String get profileUserId;
+
+  /// No description provided for @profileContactUs.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact us'**
+  String get profileContactUs;
+
+  /// No description provided for @profilePrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy policy'**
+  String get profilePrivacy;
+
+  /// No description provided for @profileTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of service'**
+  String get profileTerms;
+
+  /// No description provided for @profileCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get profileCopied;
 }
 
 class _AppLocalizationsDelegate

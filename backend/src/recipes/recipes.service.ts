@@ -61,6 +61,7 @@ export class RecipesService {
       id: r.id,
       category: r.category,
       name: resolveLocalized(r.names, locale),
+      enName: resolveLocalized(r.names, 'en'),
     }));
 
     const generated = await this.textProvider.generateRecipe({

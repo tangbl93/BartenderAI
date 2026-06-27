@@ -5,6 +5,9 @@ export interface TextProviderIngredient {
   category: string;
   /** Resolved display name in the target locale. */
   name: string;
+  /** Authoritative en name (used by the stub recognizer). Optional for real
+   *  AI providers; populated by RecipesService from the ingredient's `names`. */
+  enName?: string;
 }
 
 export interface TextGenerationRequest {

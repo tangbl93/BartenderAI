@@ -17,6 +17,7 @@ npm-debug.log*
 # ---- NestJS ----
 backend/dist/
 backend/coverage/
+backend/uploads/   # local-storage driver target (media)
 
 # ---- Vue / Vite ----
 web/dist/

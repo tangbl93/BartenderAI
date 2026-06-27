@@ -69,6 +69,22 @@ class ApiService {
     return AuthResult.fromJson(jsonDecode(res.body) as Map<String, dynamic>);
   }
 
+  /// POST /auth/device — silent login by deviceId (Android = GAID).
+  Future<AuthResult> deviceLogin(String deviceId,
+      {String platform = 'android', String locale = 'en'}) async {
+    final res = await _client.post(
+      _uri('/auth/device'),
+      headers: _headers(),
+      body: jsonEncode({
+        'deviceId': deviceId,
+        'platform': platform,
+        'locale': locale,
+      }),
+    );
+    if (res.statusCode != 200) _throw(res);
+    return AuthResult.fromJson(jsonDecode(res.body) as Map<String, dynamic>);
+  }
+
   Future<void> logout() async {
     await _client.post(_uri('/auth/logout'), headers: _headers());
     _accessToken = null;
@@ -158,39 +174,19 @@ class ApiService {
         .toList();
   }
 
-  Future<LabEntry> createLabEntry(
-      String recipeId, String imageUrl, LabResult result, String? note) async {
+  Future<LabEntry> createLabEntry(String recipeId, String posterImageUrl,
+      {List<String>? photos, String? note}) async {
     final res = await _client.post(
       _uri('/lab/entries'),
       headers: _headers(),
       body: jsonEncode({
         'recipeId': recipeId,
-        'imageUrl': imageUrl,
-        'result': result.wire,
+        'posterImageUrl': posterImageUrl,
+        'photos': photos ?? const <String>[],
         'note': ?note,
       }),
     );
     if (res.statusCode != 201) _throw(res);
     return LabEntry.fromJson(jsonDecode(res.body) as Map<String, dynamic>);
-  }
-
-  Future<void> submitToWall(String entryId) async {
-    final res = await _client.post(
-      _uri('/lab/entries/$entryId/submit'),
-      headers: _headers(),
-    );
-    if (res.statusCode != 200) _throw(res);
-  }
-
-  // ---------------- WALL ----------------
-  Future<List<LabEntry>> wall({String sort = 'time', int page = 1}) async {
-    final res = await _client.get(
-      _uri('/wall', {'sort': sort, 'page': page}),
-      headers: _headers(),
-    );
-    if (res.statusCode != 200) _throw(res);
-    return (jsonDecode(res.body) as List)
-        .map((e) => LabEntry.fromJson((e as Map).cast<String, dynamic>()))
-        .toList();
   }
 }

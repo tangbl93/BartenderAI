@@ -1,8 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Network access for the API service and remote poster images. -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Google Advertising ID (GAID) for device auto-login. Android 13+ requirement. -->
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
     <application
-        android:label="Home Bartender AI"
+        android:label="Bartender AI"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

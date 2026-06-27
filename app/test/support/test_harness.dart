@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:home_bartender/data/config/app_config.dart';
 import 'package:home_bartender/data/repositories/repositories.dart';
 import 'package:home_bartender/data/repositories/repository_factory.dart';
+import 'package:home_bartender/data/services/gaid_service.dart';
 import 'package:home_bartender/data/services/image_save_service.dart';
 import 'package:home_bartender/l10n/app_localizations.dart';
 import 'package:home_bartender/logic/auth_controller.dart';
@@ -27,7 +28,7 @@ Widget wrapWithApp(
       ChangeNotifierProvider<OnboardingController>(
           create: (_) => OnboardingController()),
       ChangeNotifierProvider<AuthController>(
-          create: (_) => AuthController(repos.auth)),
+          create: (_) => AuthController(repos.auth, GaidService())),
     ],
     child: MaterialApp(
       locale: locale,

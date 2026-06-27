@@ -99,6 +99,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get authLogout => '退出登录';
 
   @override
+  String get authPrivacyGaid =>
+      '我们使用设备的广告标识符（GAID）为你自动登录。你可以在「系统设置 → 隐私 → 广告」中随时重置该标识。';
+
+  @override
+  String get authSigningIn => '正在登录…';
+
+  @override
   String get navFridge => '翻冰箱';
 
   @override
@@ -307,6 +314,78 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get moderationRejected => '已拒绝';
+
+  @override
+  String get splashTagline => '调酒，从此随手可得';
+
+  @override
+  String get onboardingStep1Title => '扫描你的冰箱';
+
+  @override
+  String get onboardingStep1Desc => '拍照或勾选你有的材料，AI 立刻为你调制专属配方。';
+
+  @override
+  String get onboardingStep2Title => 'AI 调酒';
+
+  @override
+  String get onboardingStep2Desc => '根据你的材料和口味，发现独一无二的配方。';
+
+  @override
+  String get onboardingStep3Title => '赛博海报';
+
+  @override
+  String get onboardingStep3Desc => '一键为你的作品生成精美、可分享的社交媒体海报。';
+
+  @override
+  String get onboardingStep4Title => '社区墙';
+
+  @override
+  String get onboardingStep4Desc => '加入全球家庭调酒师社区，分享作品、登顶排行榜。';
+
+  @override
+  String get onboardingStartButton => '开始调制';
+
+  @override
+  String get homeTitle => '我的作品';
+
+  @override
+  String get homeEmpty => '还没有作品，点「制作」开始吧';
+
+  @override
+  String get craftMake => '制作';
+
+  @override
+  String get craftGeneratePoster => '生成分享图';
+
+  @override
+  String get craftConfirmTitle => '确认保存';
+
+  @override
+  String get craftAddPhotos => '添加成品照';
+
+  @override
+  String get craftPhotosOptional => '可选，最多 3 张';
+
+  @override
+  String get craftSave => '保存作品';
+
+  @override
+  String get craftSaved => '已保存到我的作品';
+
+  @override
+  String get profileUserId => '用户 ID';
+
+  @override
+  String get profileContactUs => '联系我们';
+
+  @override
+  String get profilePrivacy => '隐私协议';
+
+  @override
+  String get profileTerms => '用户协议';
+
+  @override
+  String get profileCopied => '已复制';
 }
 
 /// The translations for Chinese, as used in China (`zh_CN`).
@@ -402,6 +481,13 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get authLogout => '退出登录';
+
+  @override
+  String get authPrivacyGaid =>
+      '我们使用设备的广告标识符（GAID）为你自动登录。你可以在「系统设置 → 隐私 → 广告」中随时重置该标识。';
+
+  @override
+  String get authSigningIn => '正在登录…';
 
   @override
   String get navFridge => '翻冰箱';
@@ -612,6 +698,78 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get moderationRejected => '已拒绝';
+
+  @override
+  String get splashTagline => '调酒，从此随手可得';
+
+  @override
+  String get onboardingStep1Title => '扫描你的冰箱';
+
+  @override
+  String get onboardingStep1Desc => '拍照或勾选你有的材料，AI 立刻为你调制专属配方。';
+
+  @override
+  String get onboardingStep2Title => 'AI 调酒';
+
+  @override
+  String get onboardingStep2Desc => '根据你的材料和口味，发现独一无二的配方。';
+
+  @override
+  String get onboardingStep3Title => '赛博海报';
+
+  @override
+  String get onboardingStep3Desc => '一键为你的作品生成精美、可分享的社交媒体海报。';
+
+  @override
+  String get onboardingStep4Title => '社区墙';
+
+  @override
+  String get onboardingStep4Desc => '加入全球家庭调酒师社区，分享作品、登顶排行榜。';
+
+  @override
+  String get onboardingStartButton => '开始调制';
+
+  @override
+  String get homeTitle => '我的作品';
+
+  @override
+  String get homeEmpty => '还没有作品，点「制作」开始吧';
+
+  @override
+  String get craftMake => '制作';
+
+  @override
+  String get craftGeneratePoster => '生成分享图';
+
+  @override
+  String get craftConfirmTitle => '确认保存';
+
+  @override
+  String get craftAddPhotos => '添加成品照';
+
+  @override
+  String get craftPhotosOptional => '可选，最多 3 张';
+
+  @override
+  String get craftSave => '保存作品';
+
+  @override
+  String get craftSaved => '已保存到我的作品';
+
+  @override
+  String get profileUserId => '用户 ID';
+
+  @override
+  String get profileContactUs => '联系我们';
+
+  @override
+  String get profilePrivacy => '隐私协议';
+
+  @override
+  String get profileTerms => '用户协议';
+
+  @override
+  String get profileCopied => '已复制';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -707,6 +865,13 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get authLogout => '登出';
+
+  @override
+  String get authPrivacyGaid =>
+      '我們使用裝置的廣告識別碼（GAID）為您自動登入。您可以在「系統設定 → 隱私 → 廣告」中隨時重置該識別碼。';
+
+  @override
+  String get authSigningIn => '登入中…';
 
   @override
   String get navFridge => '翻冰箱';
@@ -914,4 +1079,76 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get moderationRejected => '已拒絕';
+
+  @override
+  String get splashTagline => '調酒，從此隨手可得';
+
+  @override
+  String get onboardingStep1Title => '掃描你的冰箱';
+
+  @override
+  String get onboardingStep1Desc => '拍照或勾選你有的材料，AI 立刻為你調製專屬配方。';
+
+  @override
+  String get onboardingStep2Title => 'AI 調酒';
+
+  @override
+  String get onboardingStep2Desc => '根據你的材料和口味，發現獨一無二的配方。';
+
+  @override
+  String get onboardingStep3Title => '賽博海報';
+
+  @override
+  String get onboardingStep3Desc => '一鍵為你的作品生成精美、可分享的社群海報。';
+
+  @override
+  String get onboardingStep4Title => '社群牆';
+
+  @override
+  String get onboardingStep4Desc => '加入全球家庭調酒師社群，分享作品、登頂排行榜。';
+
+  @override
+  String get onboardingStartButton => '開始調製';
+
+  @override
+  String get homeTitle => '我的作品';
+
+  @override
+  String get homeEmpty => '還沒有作品，點「製作」開始吧';
+
+  @override
+  String get craftMake => '製作';
+
+  @override
+  String get craftGeneratePoster => '生成分享圖';
+
+  @override
+  String get craftConfirmTitle => '確認儲存';
+
+  @override
+  String get craftAddPhotos => '新增成品照';
+
+  @override
+  String get craftPhotosOptional => '可選，最多 3 張';
+
+  @override
+  String get craftSave => '儲存作品';
+
+  @override
+  String get craftSaved => '已儲存到我的作品';
+
+  @override
+  String get profileUserId => '使用者 ID';
+
+  @override
+  String get profileContactUs => '聯絡我們';
+
+  @override
+  String get profilePrivacy => '隱私權政策';
+
+  @override
+  String get profileTerms => '服務條款';
+
+  @override
+  String get profileCopied => '已複製';
 }

@@ -14,17 +14,42 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.8
+  google_fonts: ^6.2.1
+  advertising_id: ^2.7.1
   http: ^1.2.2
   intl: any
   provider: ^6.1.2
   shared_preferences: ^2.3.2
   image_picker: ^1.1.2
+  url_launcher: ^6.3.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+  flutter_native_splash: ^2.4.6
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/logo_icon.png"
+  adaptive_icon_background: "#07070d"
+  adaptive_icon_foreground: "assets/logo_icon.png"
+  remove_alpha_ios: true
+
+flutter_native_splash:
+  color: "#07070d"
+  image: "assets/logo_splash.png"
+  android_12:
+    image: "assets/logo_splash.png"
+    color: "#07070d"
+  android: true
+  ios: true
 
 flutter:
   uses-material-design: true
   generate: true
+  assets:
+    - assets/
+    - assets/onboarding/

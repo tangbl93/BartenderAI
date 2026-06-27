@@ -4,6 +4,12 @@ export interface ImageGenerationRequest {
   size?: string;
   /** Used by the stub to produce a deterministic placeholder URL. */
   seed?: string;
+  /**
+   * Optional i2i reference image as a base64 data URL forwarded from the App.
+   * When present, providers SHOULD use it as an image-to-image reference.
+   * The backend NEVER persists this — it is forwarded to the image API only.
+   */
+  referenceImage?: string;
 }
 
 export interface ImageGenerationResult {

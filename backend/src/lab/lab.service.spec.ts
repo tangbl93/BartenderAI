@@ -60,10 +60,10 @@ describe('LabService', () => {
     );
   });
 
-  it('submit sets moderationStatus=pending and isPublic=true', async () => {
+  it('submit sets moderationStatus=public (submit == public) and isPublic=true', async () => {
     const entry = await makeEntry();
     const submitted = await service.submit(entry.id, OWNER);
-    expect(submitted.moderationStatus).toBe('pending');
+    expect(submitted.moderationStatus).toBe('public');
     expect(submitted.isPublic).toBe(true);
   });
 });

@@ -7,10 +7,11 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
+import { randomUUID } from 'crypto';
 import { Repository } from 'typeorm';
 import { UserEntity } from '../database/entities';
 import { Role } from '../common/constants';
-import { AuthResultDto, RegisterDto, UserDto } from './dto/auth.dto';
+import { AuthResultDto, DeviceLoginDto, RegisterDto, UserDto } from './dto/auth.dto';
 import { TokenBlacklistService } from './token-blacklist.service';
 
 const BCRYPT_ROUNDS = 10;
@@ -56,6 +57,30 @@ export class AuthService {
     password: string;
   }): Promise<AuthResultDto> {
     return this.authenticate(dto, ['operator', 'admin']);
+  }
+
+  /**
+   * Silent auto-login by device id (Android = GAID). Find-or-create a device
+   * account — no password, no registration step.
+   */
+  async deviceLogin(dto: DeviceLoginDto): Promise<AuthResultDto> {
+    const account = `device:${dto.deviceId}`;
+    let user = await this.users.findOne({ where: { account } });
+    if (!user) {
+      user = await this.users.save(
+        this.users.create({
+          account,
+          // No password; store a random hash so the password login path can
+          // never succeed for a device account.
+          passwordHash: await bcrypt.hash(randomUUID(), BCRYPT_ROUNDS),
+          displayName: '微醺客人',
+          role: 'user',
+          deviceId: dto.deviceId,
+          isDevice: true,
+        }),
+      );
+    }
+    return this.issueTokens(user);
   }
 
   private async authenticate(
@@ -108,6 +133,7 @@ export class AuthService {
       account: user.account,
       displayName: user.displayName,
       role: user.role,
+      isDevice: user.isDevice,
     };
   }
 }

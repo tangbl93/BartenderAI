@@ -1,31 +1,52 @@
-/// <reference types="vitest" />
-import { fileURLToPath, URL } from 'node:url'
+/// <reference types="vitest/config" />
+import path from 'path'
 import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
+import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+import { tanstackRouter } from '@tanstack/router-plugin/vite'
+import { playwright } from '@vitest/browser-playwright'
 
+// https://vite.dev/config/
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [
+    tanstackRouter({
+      target: 'react',
+      autoCodeSplitting: true,
+    }),
+    react(),
+    tailwindcss(),
+  ],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@': path.resolve(__dirname, './src'),
     },
   },
   server: {
-    port: 5173,
     proxy: {
       '/api': {
-        target: process.env.VITE_API_PROXY_TARGET || 'http://localhost:3000',
+        target: 'http://localhost:3000',
         changeOrigin: true,
       },
     },
   },
   test: {
-    globals: true,
-    environment: 'jsdom',
-    include: ['src/**/*.{test,spec}.ts'],
-    setupFiles: ['src/test/setup.ts'],
+    silent: 'passed-only',
+    unstubEnvs: true,
+    browser: {
+      enabled: true,
+      provider: playwright(),
+      instances: [{ browser: 'chromium' }],
+    },
     coverage: {
-      provider: 'v8',
+      // include: ['src/**/*.{js,jsx,ts,tsx}'], // Uncomment to expand the report to all src/**/* so untested modules appear as 0% coverage.
+      exclude: [
+        'src/components/ui/**',
+        'src/assets/**',
+        'src/tanstack-table.d.ts',
+        'src/routeTree.gen.ts',
+        'src/test-utils/**',
+        'src/routes/**',
+      ],
     },
   },
 })

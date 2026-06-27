@@ -1,0 +1,41 @@
+name: Web CI (legacy template)
+
+# NOTE: The canonical CI lives at the repository root
+# (.github/workflows/ci.yml) and runs the `web` lane against this directory.
+# This file is kept only for standalone template use and mirrors the root lane.
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  install-lint-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      # legacy-peer-deps is configured in web/.npmrc (React 19 peers)
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint the code
+        run: npm run lint
+
+      - name: Run Prettier check
+        run: npm run format:check
+
+      - name: Build the project
+        run: npm run build

@@ -68,6 +68,19 @@ paths:
         '200': { description: 登录成功, content: { application/json: { schema: { $ref: '#/components/schemas/AuthResult' } } } }
         '401': { description: 凭证错误 }
 
+  /auth/device:
+    post:
+      tags: [auth]
+      summary: 设备自动登录（Android 以 GAID 作为 UID，免注册静默登录）
+      description: >
+        按 deviceId（Android = Google Advertising ID / GAID）查找或创建用户并返回令牌，
+        实现首启免登录。注意：GAID 受 Google Play 政策限制且用户可重置，重置后视为新用户。
+      security: []
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/DeviceLoginDto' } } } }
+      responses:
+        '200': { description: 自动登录成功, content: { application/json: { schema: { $ref: '#/components/schemas/AuthResult' } } } }
+        '400': { description: deviceId 缺失或非法 }
+
   /auth/logout:
     post:
       tags: [auth]
@@ -167,9 +180,15 @@ paths:
   /templates:
     get:
       tags: [templates]
-      summary: 前台可选风格模板（仅启用）
+      summary: 前台可选风格模板（仅启用，App 导入预设集）
+      description: 响应头 `X-Templates-Version` 为启用集版本（max version），App 据此判断是否需要重新拉取导入。
       security: []
-      responses: { '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/StyleTemplate' } } } } } }
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Templates-Version: { schema: { type: integer }, description: 启用模板集版本号 }
+          content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/StyleTemplate' } } } }
   /admin/templates:
     get:
       tags: [templates]
@@ -269,6 +288,74 @@ paths:
         - { name: to, in: query, schema: { type: string, format: date } }
       responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Dashboard' } } } } }
 
+  # ---------------- ADMIN: USERS ----------------
+  /admin/users:
+    get:
+      tags: [admin]
+      summary: 用户目录（匿名 deviceId 追溯，分页+搜索）
+      parameters:
+        - { name: q, in: query, schema: { type: string }, description: 按 deviceId/account 片段搜索 }
+        - { name: page, in: query, schema: { type: integer, default: 1 } }
+        - { name: size, in: query, schema: { type: integer, default: 20 } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/UserPage' } } } }
+        '403': { description: 非管理员 }
+  /admin/users/{id}:
+    get:
+      tags: [admin]
+      summary: 用户详情 + 活动计数
+      parameters: [ { name: id, in: path, required: true, schema: { type: string } } ]
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/AdminUserDetail' } } } }
+        '403': { description: 非管理员 }
+
+  # ---------------- ADMIN: CONTENT ----------------
+  /admin/content/shared:
+    get:
+      tags: [admin]
+      summary: 全量用户分享内容（全状态，可按用户/状态筛选）
+      parameters:
+        - { name: userId, in: query, schema: { type: string } }
+        - { name: status, in: query, schema: { type: string, enum: [public, hidden] } }
+        - { name: page, in: query, schema: { type: integer, default: 1 } }
+        - { name: size, in: query, schema: { type: integer, default: 20 } }
+      responses: { '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/LabEntry' } } } } }, '403': { description: 非管理员 } }
+  /admin/content/results:
+    get:
+      tags: [admin]
+      summary: 用户生成结果（recipes + poster jobs，海报画廊为主）
+      parameters:
+        - { name: userId, in: query, schema: { type: string } }
+        - { name: type, in: query, schema: { type: string, enum: [recipe, poster] } }
+        - { name: page, in: query, schema: { type: integer, default: 1 } }
+        - { name: size, in: query, schema: { type: integer, default: 24 } }
+      responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/ResultsPage' } } } }, '403': { description: 非管理员 } }
+  /admin/content/{id}/hide:
+    post:
+      tags: [admin]
+      summary: 屏蔽违规内容（二次确认；记录日志）
+      parameters: [ { name: id, in: path, required: true, schema: { type: string } } ]
+      responses: { '200': { description: 已屏蔽 }, '403': { description: 非管理员 } }
+  /admin/content/{id}:
+    delete:
+      tags: [admin]
+      summary: 删除违规内容（二次确认；记录日志）
+      parameters: [ { name: id, in: path, required: true, schema: { type: string } } ]
+      responses: { '204': { description: 已删除 }, '403': { description: 非管理员 } }
+
+  # ---------------- ADMIN: TEMPLATE REFERENCE IMAGE ----------------
+  /admin/templates/{id}/reference-image:
+    post:
+      tags: [templates]
+      summary: 上传/替换模板参考图（i2i 使用案例），存对象存储
+      parameters: [ { name: id, in: path, required: true, schema: { type: string } } ]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema: { type: object, properties: { file: { type: string, format: binary } } }
+      responses: { '200': { description: OK, content: { application/json: { schema: { type: object, properties: { referenceImageUrl: { type: string } } } } } } }
+
 components:
   securitySchemes:
     bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
@@ -287,12 +374,24 @@ components:
       type: object
       required: [account, password]
       properties: { account: { type: string }, password: { type: string } }
+    DeviceLoginDto:
+      type: object
+      required: [deviceId]
+      properties:
+        deviceId: { type: string, description: "Android=GAID；其它平台=安装级设备标识" }
+        platform: { type: string, enum: [android, ios, web], default: android }
+        locale: { type: string, default: en }
     AuthResult:
       type: object
       properties: { accessToken: { type: string }, refreshToken: { type: string }, user: { $ref: '#/components/schemas/User' } }
     User:
       type: object
-      properties: { id: { type: string }, account: { type: string }, displayName: { type: string }, role: { $ref: '#/components/schemas/Role' } }
+      properties:
+        id: { type: string }
+        account: { type: string }
+        displayName: { type: string }
+        role: { $ref: '#/components/schemas/Role' }
+        isDevice: { type: boolean, description: 是否为设备自动登录账户（GAID）, default: false }
 
     Ingredient:
       type: object
@@ -339,6 +438,7 @@ components:
         recipeId: { type: string }
         templateIds: { type: array, items: { type: string }, description: 留空则用三种默认预设 }
         locale: { type: string, default: en }
+        referenceImage: { type: string, description: "i2i 参考图（base64 data URL），App 随请求发送；后端转发图像 API、不落库", nullable: true }
     PosterJob:
       type: object
       properties:
@@ -367,6 +467,7 @@ components:
         textRenderMode: { type: string, enum: [model, backend], description: 艺术字模型渲染 vs 后端叠加 }
         enabled: { type: boolean }
         version: { type: integer }
+        referenceImageUrl: { type: string, description: "参考图对象存储 URL（i2i 使用案例）", nullable: true }
     StyleTemplateDto:
       type: object
       required: [name, prompt, dimension]
@@ -419,6 +520,46 @@ components:
         approvalRate: { type: number }
         topIngredients: { type: array, items: { type: object, properties: { name: { type: string }, count: { type: integer } } } }
         topStyles: { type: array, items: { type: object, properties: { name: { type: string }, count: { type: integer } } } }
+
+    AdminUser:
+      type: object
+      properties:
+        id: { type: string }
+        account: { type: string }
+        deviceId: { type: string, nullable: true }
+        isDevice: { type: boolean }
+        displayName: { type: string, nullable: true }
+        role: { $ref: '#/components/schemas/Role' }
+        createdAt: { type: string, format: date-time }
+    UserPage:
+      type: object
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/AdminUser' } }
+        total: { type: integer }
+        page: { type: integer }
+        size: { type: integer }
+    AdminUserDetail:
+      type: object
+      properties:
+        user: { $ref: '#/components/schemas/AdminUser' }
+        counts: { type: object, properties: { labEntries: { type: integer }, recipes: { type: integer }, posters: { type: integer } } }
+    ResultsPage:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              type: { type: string, enum: [recipe, poster] }
+              id: { type: string }
+              ownerId: { type: string }
+              createdAt: { type: string, format: date-time }
+              title: { type: string, description: 配方酒名或海报维度 }
+              imageUrl: { type: string, nullable: true, description: 海报缩略图 URL }
+        total: { type: integer }
+        page: { type: integer }
+        size: { type: integer }
 
 security:
   - bearerAuth: []

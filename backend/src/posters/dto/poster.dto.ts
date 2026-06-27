@@ -23,6 +23,14 @@ export class PosterJobDto {
   @IsOptional()
   @IsString()
   locale?: string;
+
+  @ApiPropertyOptional({
+    description: 'i2i 参考图（base64 data URL），App 随请求发送；后端转发图像 API、不落库',
+    nullable: true,
+  })
+  @IsOptional()
+  @IsString()
+  referenceImage?: string;
 }
 
 export class PosterViewDto {

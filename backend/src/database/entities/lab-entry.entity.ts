@@ -7,7 +7,15 @@ import {
 } from 'typeorm';
 
 export type LabResult = 'success' | 'fail';
-export type ModerationStatus = 'private' | 'pending' | 'approved' | 'rejected';
+// New default shared state is `public` (submit == public). `hidden` is the
+// violation-hide state. Legacy pending/approved/rejected kept for back-compat.
+export type ModerationStatus =
+  | 'private'
+  | 'pending'
+  | 'approved'
+  | 'rejected'
+  | 'public'
+  | 'hidden';
 
 @Entity('lab_entries')
 export class LabEntryEntity {

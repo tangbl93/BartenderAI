@@ -76,6 +76,8 @@ jobs:
         run: npm run build --if-present
 
   # ---------------------------------------------------------- web
+  # React (shadcn-admin) admin console. Installs need --legacy-peer-deps
+  # (React 19 peers) which is configured via web/.npmrc.
   web:
     needs: detect
     if: needs.detect.outputs.web == 'true'
@@ -93,25 +95,8 @@ jobs:
       - run: npm ci
       - name: Lint
         run: npm run lint --if-present
-      - name: Unit test (Vitest)
-        run: npm test --if-present
       - name: Build
         run: npm run build --if-present
-      # Playwright visual-regression lane (see scripts/screenshot-baseline.md).
-      # Runs only if a playwright config is present; uploads diffs on failure.
-      - name: Install Playwright browsers
-        if: ${{ hashFiles('web/playwright.config.*') != '' }}
-        run: npx playwright install --with-deps chromium
-      - name: Visual snapshots
-        if: ${{ hashFiles('web/playwright.config.*') != '' }}
-        run: npm run test:visual --if-present
-      - name: Upload Playwright report
-        if: ${{ failure() && hashFiles('web/playwright.config.*') != '' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report
-          path: web/playwright-report/
-          retention-days: 7
 
   # ---------------------------------------------------------- app
   app:

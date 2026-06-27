@@ -15,8 +15,7 @@ class MockRepository
         IngredientRepository,
         RecipeRepository,
         PosterRepository,
-        LabRepository,
-        WallRepository {
+        LabRepository {
   MockRepository();
 
   final List<LabEntry> _labEntries = [];
@@ -67,6 +66,24 @@ class MockRepository
 
   @override
   Future<void> logout() async => _delay(120);
+
+  @override
+  Future<AuthResult> deviceLogin(String deviceId,
+      {String platform = 'android', String locale = 'en'}) async {
+    await _delay();
+    // Deterministic per-GAID so a returning device resolves to the same user.
+    final userNum = deviceId.hashCode.abs() % 90000 + 1000;
+    return AuthResult(
+      accessToken: 'mock-device-${deviceId.hashCode}',
+      refreshToken: 'mock-refresh-device-${deviceId.hashCode}',
+      user: User(
+        id: 'device-$userNum',
+        account: 'gaid:$deviceId',
+        displayName: 'Guest $userNum',
+        role: UserRole.user,
+      ),
+    );
+  }
 
   AuthResult _fakeAuth(String account, String displayName) {
     return AuthResult(
@@ -502,17 +519,18 @@ class MockRepository
   }
 
   @override
-  Future<LabEntry> create(
-      String recipeId, String imageUrl, LabResult result, String? note) async {
+  Future<LabEntry> create(String recipeId, String posterImageUrl,
+      {List<String>? photos, String? note}) async {
     await _delay();
-    if (imageUrl.isEmpty) {
+    if (posterImageUrl.isEmpty && (photos == null || photos.isEmpty)) {
       throw ApiException(400, 'Image is required', 'MISSING_FIELD');
     }
     final entry = LabEntry(
       id: _nextId('lab'),
       recipeId: recipeId,
-      imageUrl: imageUrl,
-      result: result,
+      posterImageUrl: posterImageUrl,
+      photos: List<String>.unmodifiable(photos ?? const []),
+      result: LabResult.success,
       note: note ?? '',
       isPublic: false,
       moderationStatus: ModerationStatus.private,
@@ -520,46 +538,5 @@ class MockRepository
     );
     _labEntries.add(entry);
     return entry;
-  }
-
-  @override
-  Future<void> submitToWall(String entryId) async {
-    await _delay();
-    final idx = _labEntries.indexWhere((e) => e.id == entryId);
-    if (idx < 0) return;
-    final e = _labEntries[idx];
-    _labEntries[idx] = LabEntry(
-      id: e.id,
-      recipeId: e.recipeId,
-      imageUrl: e.imageUrl,
-      result: e.result,
-      note: e.note,
-      isPublic: true,
-      moderationStatus: ModerationStatus.pending,
-      createdAt: e.createdAt,
-    );
-  }
-
-  // ---------------- WALL ----------------
-  @override
-  Future<List<LabEntry>> feed({String sort = 'time', int page = 1}) async {
-    await _delay();
-    // Seeded public, approved posters.
-    final seeded = List.generate(6, (i) {
-      return LabEntry(
-        id: 'wall-$i',
-        recipeId: 'recipe-demo-$i',
-        imageUrl: 'https://picsum.photos/seed/wall$i/600/800',
-        result: i.isEven ? LabResult.success : LabResult.fail,
-        note: 'Community creation #$i',
-        isPublic: true,
-        moderationStatus: ModerationStatus.approved,
-        createdAt: DateTime.now().subtract(Duration(hours: i * 5)),
-      );
-    });
-    if (sort == 'hot') {
-      seeded.shuffle();
-    }
-    return seeded;
   }
 }

@@ -99,6 +99,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get authLogout => 'ログアウト';
 
   @override
+  String get authPrivacyGaid =>
+      'デバイスの広告 ID（GAID）を利用して自動的にサインインします。Android の「設定 → プライバシー → 広告」からいつでもリセットできます。';
+
+  @override
+  String get authSigningIn => 'サインイン中…';
+
+  @override
   String get navFridge => '冷蔵庫';
 
   @override
@@ -307,4 +314,76 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get moderationRejected => '却下';
+
+  @override
+  String get splashTagline => 'カクテルが、いつも手の届くところに';
+
+  @override
+  String get onboardingStep1Title => '冷蔵庫をスキャン';
+
+  @override
+  String get onboardingStep1Desc => '写真を撮るか材料を選ぶだけで、AIがあなただけのカクテル処方を即座に作ります。';
+
+  @override
+  String get onboardingStep2Title => 'AI ミクソロジー';
+
+  @override
+  String get onboardingStep2Desc => 'あなたの在庫と好みに合わせた、あなただけのカクテルを見つけよう。';
+
+  @override
+  String get onboardingStep3Title => 'サイバーポスター';
+
+  @override
+  String get onboardingStep3Desc => '作品をワンクリックで、シェアできる魅力的なSNSポスターに。';
+
+  @override
+  String get onboardingStep4Title => 'コミュニティウォール';
+
+  @override
+  String get onboardingStep4Desc => '世界のホームバーテンダーとつながろう。作品をシェアしてランキングを登る。';
+
+  @override
+  String get onboardingStartButton => 'ミックス開始';
+
+  @override
+  String get homeTitle => 'マイ作品';
+
+  @override
+  String get homeEmpty => 'まだ作品がありません。「作成」で始めましょう';
+
+  @override
+  String get craftMake => '作成';
+
+  @override
+  String get craftGeneratePoster => 'シェア画像を生成';
+
+  @override
+  String get craftConfirmTitle => '保存確認';
+
+  @override
+  String get craftAddPhotos => '完成写真を追加';
+
+  @override
+  String get craftPhotosOptional => '任意、最大3枚';
+
+  @override
+  String get craftSave => '作品を保存';
+
+  @override
+  String get craftSaved => 'マイ作品に保存しました';
+
+  @override
+  String get profileUserId => 'ユーザー ID';
+
+  @override
+  String get profileContactUs => 'お問い合わせ';
+
+  @override
+  String get profilePrivacy => 'プライバシーポリシー';
+
+  @override
+  String get profileTerms => '利用規約';
+
+  @override
+  String get profileCopied => 'コピーしました';
 }

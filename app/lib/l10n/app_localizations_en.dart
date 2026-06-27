@@ -99,6 +99,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authLogout => 'Sign out';
 
   @override
+  String get authPrivacyGaid =>
+      'We use your device\'s advertising ID to sign you in automatically. You can reset it anytime in Android Settings > Privacy > Ads.';
+
+  @override
+  String get authSigningIn => 'Signing you in…';
+
+  @override
   String get navFridge => 'Fridge';
 
   @override
@@ -310,4 +317,80 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get moderationRejected => 'Rejected';
+
+  @override
+  String get splashTagline => 'Mixology, now within reach';
+
+  @override
+  String get onboardingStep1Title => 'Scan Your Fridge';
+
+  @override
+  String get onboardingStep1Desc =>
+      'Snap a photo or list your ingredients. Our AI will instantly craft personalized cocktail recipes just for you.';
+
+  @override
+  String get onboardingStep2Title => 'AI Mixology';
+
+  @override
+  String get onboardingStep2Desc =>
+      'Discover unique cocktails tailored specifically to your inventory and taste profile.';
+
+  @override
+  String get onboardingStep3Title => 'Cyber Posters';
+
+  @override
+  String get onboardingStep3Desc =>
+      'Generate stunning, shareable social media posters for your liquid creations in a single click.';
+
+  @override
+  String get onboardingStep4Title => 'Community Wall';
+
+  @override
+  String get onboardingStep4Desc =>
+      'Join a global network of home mixologists. Share your drinks and climb the leaderboard.';
+
+  @override
+  String get onboardingStartButton => 'Start Mixing';
+
+  @override
+  String get homeTitle => 'My Creations';
+
+  @override
+  String get homeEmpty => 'No creations yet. Tap Craft to start.';
+
+  @override
+  String get craftMake => 'Craft';
+
+  @override
+  String get craftGeneratePoster => 'Generate share image';
+
+  @override
+  String get craftConfirmTitle => 'Save creation';
+
+  @override
+  String get craftAddPhotos => 'Add finished photos';
+
+  @override
+  String get craftPhotosOptional => 'Optional, up to 3';
+
+  @override
+  String get craftSave => 'Save creation';
+
+  @override
+  String get craftSaved => 'Saved to your creations';
+
+  @override
+  String get profileUserId => 'User ID';
+
+  @override
+  String get profileContactUs => 'Contact us';
+
+  @override
+  String get profilePrivacy => 'Privacy policy';
+
+  @override
+  String get profileTerms => 'Terms of service';
+
+  @override
+  String get profileCopied => 'Copied';
 }

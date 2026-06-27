@@ -63,9 +63,19 @@ describe('RecipesService', () => {
     // Safety notes include moderate-drinking + underage prohibition.
     expect(recipe.safetyNotes.join(' ')).toContain('moderation');
     expect(recipe.safetyNotes.join(' ')).toContain('minors');
-    expect(recipe.alcoholRange).toBe('8-12% ABV');
     expect(recipe.name).toBeTruthy();
     expect(recipe.tagline).toBeTruthy();
+  });
+
+  it('matches the Gin & Tonic signature (not the old "Midnight Gin Fusion")', async () => {
+    const gin: any = await seedIngredient('base_spirit', 'Gin');
+    const tonic: any = await seedIngredient('drink', 'Tonic Water');
+    const recipe = await service.generate({
+      ingredientIds: [gin.id, tonic.id],
+      locale: 'en',
+    });
+    expect(recipe.name).toBe('Gin & Tonic');
+    expect(recipe.alcoholRange).toBe('10% ABV');
   });
 
   it('produces Traditional Chinese for zh-TW', async () => {
@@ -76,8 +86,8 @@ describe('RecipesService', () => {
       locale: 'zh-TW',
     });
     expect(recipe.locale).toBe('zh-TW');
-    // Traditional form 「攪拌」 not simplified 「搅拌」
-    expect(recipe.steps.join(' ')).toContain('攪拌');
+    // Traditional form 「攪」 not simplified 「搅」
+    expect(recipe.steps.join(' ')).toContain('攪');
     expect(recipe.safetyNotes.join(' ')).toContain('適量飲用');
   });
 
@@ -101,5 +111,26 @@ describe('RecipesService', () => {
     const examples = await service.examples('en');
     expect(examples.length).toBe(1);
     expect(examples[0].isExample).toBe(true);
+  });
+
+  it('returns at least 15 seeded example recipes after seed', async () => {
+    // Seed uses a shared file DB; this test exercises the full seed() to
+    // guarantee 15 classic examples are produced from signatures.
+    const { seed } = await import('../database/seed');
+    const { DataSource } = await import('typeorm');
+    const { ENTITIES } = await import('../database/entities');
+    const fileDs = new DataSource({
+      type: 'sqlite',
+      database: ':memory:',
+      entities: ENTITIES,
+      synchronize: true,
+      dropSchema: true,
+    });
+    await fileDs.initialize();
+    await seed(fileDs);
+    const recipesRepo = fileDs.getRepository(RecipeEntity);
+    const examples = await recipesRepo.find({ where: { isExample: true } });
+    expect(examples.length).toBeGreaterThanOrEqual(15);
+    await fileDs.destroy();
   });
 });

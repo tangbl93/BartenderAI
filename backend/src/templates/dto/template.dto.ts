@@ -80,4 +80,6 @@ export class StyleTemplateViewDto {
   enabled: boolean;
   @ApiProperty()
   version: number;
+  @ApiProperty({ nullable: true, description: '参考图对象存储 URL（i2i 使用案例）' })
+  referenceImageUrl: string | null;
 }

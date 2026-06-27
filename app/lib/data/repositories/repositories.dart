@@ -6,6 +6,8 @@ import '../models/models.dart';
 abstract class AuthRepository {
   Future<AuthResult> register(String account, String password, String? name);
   Future<AuthResult> login(String account, String password);
+  Future<AuthResult> deviceLogin(String deviceId,
+      {String platform = 'android', String locale = 'en'});
   Future<void> logout();
 }
 
@@ -29,13 +31,8 @@ abstract class PosterRepository {
 
 abstract class LabRepository {
   Future<List<LabEntry>> entries();
-  Future<LabEntry> create(
-      String recipeId, String imageUrl, LabResult result, String? note);
-  Future<void> submitToWall(String entryId);
-}
-
-abstract class WallRepository {
-  Future<List<LabEntry>> feed({String sort = 'time', int page = 1});
+  Future<LabEntry> create(String recipeId, String posterImageUrl,
+      {List<String>? photos, String? note});
 }
 
 /// Aggregate handle passed around the app.
@@ -46,7 +43,6 @@ class Repositories {
     required this.recipes,
     required this.posters,
     required this.lab,
-    required this.wall,
   });
 
   final AuthRepository auth;
@@ -54,5 +50,4 @@ class Repositories {
   final RecipeRepository recipes;
   final PosterRepository posters;
   final LabRepository lab;
-  final WallRepository wall;
 }

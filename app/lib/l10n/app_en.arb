@@ -1,7 +1,9 @@
 {
   "@@locale": "en",
   "commonAppName": "Home Bartender AI",
-  "@commonAppName": { "description": "Application name" },
+  "@commonAppName": {
+    "description": "Application name"
+  },
   "commonActionSave": "Save",
   "commonActionShare": "Share",
   "commonActionCancel": "Cancel",
@@ -17,7 +19,6 @@
   "commonError": "Something went wrong",
   "commonLanguage": "Language",
   "commonSettings": "Settings",
-
   "authLoginTitle": "Sign in",
   "authRegisterTitle": "Create account",
   "authAccountLabel": "Email or phone",
@@ -32,12 +33,15 @@
   "authInvalidCredentials": "Incorrect account or password",
   "authAccountExists": "Account already exists",
   "authLogout": "Sign out",
-
+  "authPrivacyGaid": "We use your device's advertising ID to sign you in automatically. You can reset it anytime in Android Settings > Privacy > Ads.",
+  "@authPrivacyGaid": {
+    "description": "Privacy notice explaining GAID usage for device auto-login"
+  },
+  "authSigningIn": "Signing you in…",
   "navFridge": "Fridge",
   "navWall": "Wall",
   "navLab": "Lab",
   "navProfile": "Profile",
-
   "fridgeTitle": "Open the fridge",
   "fridgeSubtitle": "Tick the ingredients you have",
   "fridgeCategoryBaseSpirit": "Base spirits",
@@ -45,24 +49,33 @@
   "fridgeCategoryFruit": "Fruits",
   "fridgeCategorySnack": "Snacks",
   "fridgeSelectedCount": "{count} selected",
-  "@fridgeSelectedCount": { "placeholders": { "count": { "type": "int" } } },
+  "@fridgeSelectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "fridgeGenerate": "Generate recipe",
   "fridgeNeedMore": "Pick at least 2 ingredients to mix a drinkable recipe",
   "fridgeClear": "Clear",
-
   "exampleCardTitle": "Try these examples",
   "exampleCardSubtitle": "Tap to view a full sample recipe",
-
   "onboardingTitle": "Welcome",
   "onboardingStepSelectIngredients": "Tick what's in your fridge",
   "onboardingStepGenerateRecipe": "AI mixes a custom recipe for you",
   "onboardingStepGeneratePoster": "Generate a poster matrix to share",
   "onboardingStepCheckIn": "Check in your creations in the Lab",
   "onboardingReplay": "Replay tutorial",
-
   "recipeResultTitle": "Your recipe",
   "recipeAlcoholRange": "Alcohol: {range}",
-  "@recipeAlcoholRange": { "placeholders": { "range": { "type": "String" } } },
+  "@recipeAlcoholRange": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      }
+    }
+  },
   "recipeIngredients": "Ingredients",
   "recipeSteps": "Steps",
   "recipeToolSubstitutions": "Home tool swaps",
@@ -72,7 +85,6 @@
   "recipeGuideTitle": "Step-by-step guide",
   "recipeMakePoster": "Make posters",
   "recipeGenerating": "Mixing your recipe...",
-
   "posterTitle": "Poster matrix",
   "posterDimensionHomeCloseup": "Home close-up",
   "posterDimensionBarCommercial": "Bar commercial",
@@ -86,7 +98,6 @@
   "posterSaved": "Saved to gallery",
   "posterGenerating": "Generating posters...",
   "posterTimeout": "Generation timed out, please retry",
-
   "labTitle": "My Tasting Lab",
   "labEmpty": "No check-ins yet. Mix something and check in!",
   "labCheckIn": "Check in",
@@ -101,15 +112,46 @@
   "labSubmittedPending": "Submitted, pending review",
   "labDetailTitle": "Creation detail",
   "labCreatedAt": "Created {date}",
-  "@labCreatedAt": { "placeholders": { "date": { "type": "String" } } },
-
+  "@labCreatedAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "wallTitle": "Creative poster wall",
   "wallSortHot": "Hot",
   "wallSortTime": "Newest",
   "wallEmpty": "No approved posters yet",
-
   "moderationPrivate": "Private",
   "moderationPending": "Pending review",
   "moderationApproved": "Approved",
-  "moderationRejected": "Rejected"
+  "moderationRejected": "Rejected",
+  "splashTagline": "Mixology, now within reach",
+  "@splashTagline": {
+    "description": "Splash screen tagline under the brand name."
+  },
+  "onboardingStep1Title": "Scan Your Fridge",
+  "onboardingStep1Desc": "Snap a photo or list your ingredients. Our AI will instantly craft personalized cocktail recipes just for you.",
+  "onboardingStep2Title": "AI Mixology",
+  "onboardingStep2Desc": "Discover unique cocktails tailored specifically to your inventory and taste profile.",
+  "onboardingStep3Title": "Cyber Posters",
+  "onboardingStep3Desc": "Generate stunning, shareable social media posters for your liquid creations in a single click.",
+  "onboardingStep4Title": "Community Wall",
+  "onboardingStep4Desc": "Join a global network of home mixologists. Share your drinks and climb the leaderboard.",
+  "onboardingStartButton": "Start Mixing",
+  "homeTitle": "My Creations",
+  "homeEmpty": "No creations yet. Tap Craft to start.",
+  "craftMake": "Craft",
+  "craftGeneratePoster": "Generate share image",
+  "craftConfirmTitle": "Save creation",
+  "craftAddPhotos": "Add finished photos",
+  "craftPhotosOptional": "Optional, up to 3",
+  "craftSave": "Save creation",
+  "craftSaved": "Saved to your creations",
+  "profileUserId": "User ID",
+  "profileContactUs": "Contact us",
+  "profilePrivacy": "Privacy policy",
+  "profileTerms": "Terms of service",
+  "profileCopied": "Copied"
 }

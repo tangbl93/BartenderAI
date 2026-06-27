@@ -46,6 +46,10 @@ export class StyleTemplateEntity {
   @Column({ default: 1 })
   version: number;
 
+  /** Reference image (i2i use-case) stored in object storage. Nullable. */
+  @Column({ type: 'varchar', nullable: true })
+  referenceImageUrl: string | null;
+
   @CreateDateColumn()
   createdAt: Date;
 

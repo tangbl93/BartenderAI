@@ -67,11 +67,11 @@ export class LabService {
     await this.entries.remove(entity);
   }
 
-  /** Submit to the wall → moderationStatus=pending, isPublic=true. */
+  /** Submit to the wall → moderationStatus=public, isPublic=true. */
   async submit(id: string, ownerId: string): Promise<LabEntryViewDto> {
     const entity = await this.requireOwned(id, ownerId);
     entity.isPublic = true;
-    entity.moderationStatus = 'pending';
+    entity.moderationStatus = 'public';
     await this.entries.save(entity);
     return this.toView(entity);
   }

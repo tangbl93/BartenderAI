@@ -1,122 +1,119 @@
-# Home Bartender AI — Web (前台 + 管理后台)
+# Shadcn Admin Dashboard
 
-Vue 3 + Vite + TypeScript single-page app containing **both** the front-stage user
-site (`/app/*`) and the admin console (`/admin/*`), separated by routes.
+Admin Dashboard UI crafted with Shadcn and Vite. Built with responsiveness and accessibility in mind.
 
-The UI runs **with no backend** by default thanks to an in-browser mock adapter,
-and switches to the real backend by flipping one env var.
+![alt text](public/images/shadcn-admin.png)
 
-## Tech
+[![Sponsored by Clerk](https://img.shields.io/badge/Sponsored%20by-Clerk-5b6ee1?logo=clerk)](https://go.clerk.com/GttUAaK)
 
-- Vue 3 (`<script setup>`) + Vite + TypeScript
-- Vue Router (route guards: user vs operator/admin)
-- Pinia (auth / fridge / locale / onboarding stores)
-- vue-i18n (5 locales: `en`, `zh-CN`, `zh-TW`, `ja`, `ko`)
-- Vitest + @vue/test-utils + jsdom
-- ESLint
+I've been creating dashboard UIs at work and for my personal projects. I always wanted to make a reusable collection of dashboard UI for future projects; and here it is now. While I've created a few custom components, some of the code is directly adapted from ShadcnUI examples.
 
-## Prerequisites
+> This is not a starter project (template) though. I'll probably make one in the future.
 
-- Node.js 20+
-- npm
+## Features
 
-## Setup
+- Light/dark mode
+- Responsive
+- Accessible
+- With built-in Sidebar component
+- Global search command
+- 10+ pages
+- Extra custom components
+- RTL support
 
-```bash
-cd web
-npm install
-cp .env.example .env   # optional; defaults work out of the box
-```
+<details>
+<summary>Customized Components (click to expand)</summary>
 
-### Environment variables
+This project uses Shadcn UI components, but some have been slightly modified for better RTL (Right-to-Left) support and other improvements. These customized components differ from the original Shadcn UI versions.
 
-| Variable | Default | Meaning |
-|---|---|---|
-| `VITE_API_BASE_URL` | `http://localhost:3000/api/v1` | Backend base URL (matches the OpenAPI server) |
-| `VITE_USE_MOCK` | `true` | `true` = in-browser mock adapter (no backend needed). Set `false` to call the real backend. |
-| `VITE_API_PROXY_TARGET` | `http://localhost:3000` | Dev-server proxy target for `/api` |
+If you want to update components using the Shadcn CLI (e.g., `npx shadcn@latest add <component>`), it's generally safe for non-customized components. For the listed customized ones, you may need to manually merge changes to preserve the project's modifications and avoid overwriting RTL support or other updates.
 
-No secrets are stored in the web app. The image-generation API key lives only in
-the backend.
+> If you don't require RTL support, you can safely update the 'RTL Updated Components' via the Shadcn CLI, as these changes are primarily for RTL compatibility. The 'Modified Components' may have other customizations to consider.
 
-## Run
+### Modified Components
 
-```bash
-npm run dev       # http://localhost:5173 (mock mode by default)
-```
+- scroll-area
+- sonner
+- separator
 
-Demo accounts (mock mode):
+### RTL Updated Components
 
-- Front-stage user: `demo@bar.ai` / `password`
-- Admin: `admin@bar.ai` / `admin123`
-- Operator: `operator@bar.ai` / `operator123`
+- alert-dialog
+- calendar
+- command
+- dialog
+- dropdown-menu
+- select
+- table
+- sheet
+- sidebar
+- switch
 
-Front-stage entry: `/app/fridge` · Admin entry: `/admin/login`.
+**Notes:**
 
-## Build
+- **Modified Components**: These have general updates, potentially including RTL adjustments.
+- **RTL Updated Components**: These have specific changes for RTL language support (e.g., layout, positioning).
+- For implementation details, check the source files in `src/components/ui/`.
+- All other Shadcn UI components in the project are standard and can be safely updated via the CLI.
 
-```bash
-npm run build     # type-checks (vue-tsc) then builds to dist/
-npm run preview   # serve the production build locally
-```
+</details>
 
-## Test
+## Tech Stack
 
-```bash
-npm run test      # vitest run (CI mode)
-npm run test:watch
-```
+**UI:** [ShadcnUI](https://ui.shadcn.com) (TailwindCSS + RadixUI)
 
-Test coverage includes:
+**Build Tool:** [Vite](https://vitejs.dev/)
 
-- i18n locale **completeness** (every locale has exactly the same keys as `en`,
-  no empty / `__MISSING__` values), browser-language **detection**, **fallback**
-  and **persistence**, and zh-CN vs zh-TW distinctness.
-- Fridge multi-select store logic (grouping, toggle, min-2 gating, pruning invalid
-  selections).
-- Auth store (token/role persistence, logout) and onboarding first-visit logic.
-- Component render tests per major area: FridgeView, RecipeView, WallView,
-  OnboardingTour, and the admin Dashboard / Ingredients / Moderation views.
+**Routing:** [TanStack Router](https://tanstack.com/router/latest)
 
-## Lint
+**Type Checking:** [TypeScript](https://www.typescriptlang.org/)
+
+**Linting/Formatting:** [ESLint](https://eslint.org/) & [Prettier](https://prettier.io/)
+
+**Icons:** [Lucide Icons](https://lucide.dev/icons/), [Tabler Icons](https://tabler.io/icons) (Brand icons only)
+
+**Auth (partial):** [Clerk](https://go.clerk.com/GttUAaK)
+
+## Run Locally
+
+Clone the project
 
 ```bash
-npm run lint
+  git clone https://github.com/satnaing/shadcn-admin.git
 ```
 
-## Docker
-
-Multi-stage build (Node build → nginx serve), with SPA fallback and an `/api`
-reverse proxy to the backend.
+Go to the project directory
 
 ```bash
-# Build a production image talking to a real backend via /api
-docker build \
-  --build-arg VITE_API_BASE_URL=/api/v1 \
-  --build-arg VITE_USE_MOCK=false \
-  -t home-bartender-web .
-
-docker run -p 8080:80 home-bartender-web
-# open http://localhost:8080
+  cd shadcn-admin
 ```
 
-`nginx.conf` proxies `/api/` to `http://backend:3000` (the docker-compose service
-name) and serves `index.html` for all other routes (SPA fallback).
+Install dependencies
 
-## Project layout
+```bash
+  pnpm install
+```
 
+Start the server
+
+```bash
+  pnpm run dev
 ```
-src/
-  api/            typed client (contract) + http impl + dev mock adapter (env toggle)
-    mock/         self-contained in-memory backend + seed data
-  components/     LanguageSwitcher, OnboardingTour, ExampleCard, BarChart
-  i18n/           vue-i18n setup: detection / fallback / persistence
-  layouts/        AppLayout (前台) + AdminLayout (后台)
-  locales/        en / zh-CN / zh-TW / ja / ko JSON
-  router/         routes + user/admin guards
-  stores/         auth, fridge, locale, onboarding (Pinia)
-  views/
-    app/          fridge, recipe, poster, lab, lab-detail, wall
-    admin/        dashboard, ingredients, templates, moderation
-    auth/         login, register, admin-login
-```
+
+## Sponsoring this project ❤️
+
+If you find this project helpful or use this in your own work, consider [sponsoring me](https://github.com/sponsors/satnaing) to support development and maintenance. You can [buy me a coffee](https://buymeacoffee.com/satnaing) as well. Don’t worry, every penny helps. Thank you! 🙏
+
+For questions or sponsorship inquiries, feel free to reach out at [satnaingdev@gmail.com](mailto:satnaingdev@gmail.com).
+
+### Current Sponsor
+
+- [Clerk](https://go.clerk.com/GttUAaK) - authentication and user management for the modern web
+
+## Author
+
+Crafted with 🤍 by [@satnaing](https://github.com/satnaing)
+
+## License
+
+Licensed under the [MIT License](https://choosealicense.com/licenses/mit/)

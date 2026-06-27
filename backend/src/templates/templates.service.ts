@@ -11,6 +11,10 @@ import {
   IMAGE_PROVIDER,
   ImageProvider,
 } from '../ai/image-provider.interface';
+import {
+  STORAGE_SERVICE,
+  StorageService,
+} from '../storage/storage.interface';
 
 const DEFAULT_LAYOUT: LayoutConfig = {
   textAlign: 'center',
@@ -23,6 +27,7 @@ export class TemplatesService {
     @InjectRepository(StyleTemplateEntity)
     private readonly templates: Repository<StyleTemplateEntity>,
     @Inject(IMAGE_PROVIDER) private readonly imageProvider: ImageProvider,
+    @Inject(STORAGE_SERVICE) private readonly storage: StorageService,
   ) {}
 
   async listEnabled(): Promise<StyleTemplateViewDto[]> {
@@ -134,6 +139,32 @@ export class TemplatesService {
     return entity;
   }
 
+  /** Feed version: max(version) of enabled templates (0 if none). */
+  async feedVersion(): Promise<number> {
+    const row = (await this.templates
+      .createQueryBuilder('t')
+      .select('MAX(t.version)', 'v')
+      .where('t.enabled = :enabled', { enabled: true })
+      .getRawOne()) as { v: number | null } | undefined;
+    return row?.v ? Number(row.v) : 0;
+  }
+
+  /** Upload/replace a template's i2i reference image via object storage. */
+  async setReferenceImage(
+    id: string,
+    file: { filename: string; data: Buffer; mimetype: string },
+  ): Promise<{ referenceImageUrl: string }> {
+    const entity = await this.getEntity(id);
+    const { url } = await this.storage.upload({
+      filename: file.filename,
+      data: file.data,
+      mimetype: file.mimetype,
+    });
+    entity.referenceImageUrl = url;
+    await this.templates.save(entity);
+    return { referenceImageUrl: url };
+  }
+
   private toView(e: StyleTemplateEntity): StyleTemplateViewDto {
     return {
       id: e.id,
@@ -144,6 +175,7 @@ export class TemplatesService {
       textRenderMode: e.textRenderMode,
       enabled: e.enabled,
       version: e.version,
+      referenceImageUrl: e.referenceImageUrl,
     };
   }
 }

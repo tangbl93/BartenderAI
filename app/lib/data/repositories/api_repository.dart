@@ -10,8 +10,7 @@ class ApiRepository
         IngredientRepository,
         RecipeRepository,
         PosterRepository,
-        LabRepository,
-        WallRepository {
+        LabRepository {
   ApiRepository(this._api);
 
   final ApiService _api;
@@ -24,6 +23,12 @@ class ApiRepository
   @override
   Future<AuthResult> login(String account, String password) {
     return _api.login(account, password);
+  }
+
+  @override
+  Future<AuthResult> deviceLogin(String deviceId,
+      {String platform = 'android', String locale = 'en'}) {
+    return _api.deviceLogin(deviceId, platform: platform, locale: locale);
   }
 
   @override
@@ -58,16 +63,9 @@ class ApiRepository
   Future<List<LabEntry>> entries() => _api.labEntries();
 
   @override
-  Future<LabEntry> create(
-      String recipeId, String imageUrl, LabResult result, String? note) {
-    return _api.createLabEntry(recipeId, imageUrl, result, note);
-  }
-
-  @override
-  Future<void> submitToWall(String entryId) => _api.submitToWall(entryId);
-
-  @override
-  Future<List<LabEntry>> feed({String sort = 'time', int page = 1}) {
-    return _api.wall(sort: sort, page: page);
+  Future<LabEntry> create(String recipeId, String posterImageUrl,
+      {List<String>? photos, String? note}) {
+    return _api.createLabEntry(recipeId, posterImageUrl,
+        photos: photos, note: note);
   }
 }

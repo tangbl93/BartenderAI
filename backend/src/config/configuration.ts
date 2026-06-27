@@ -20,7 +20,14 @@ export interface AppConfig {
     model: string;
   };
   storage: {
+    driver: 'local' | 's3-compatible';
+    uploadDir?: string;
     publicBaseUrl: string;
+    endpoint?: string;
+    accessKey?: string;
+    secretKey?: string;
+    bucket?: string;
+    region?: string;
   };
   posterTimeoutMs: number;
 }
@@ -47,8 +54,20 @@ export default (): AppConfig => ({
     model: process.env.IMAGE_MODEL || 'gpt-image-2',
   },
   storage: {
+    driver: (process.env.STORAGE_DRIVER as 'local' | 's3-compatible') || 'local',
+    uploadDir: process.env.STORAGE_UPLOAD_DIR,
     publicBaseUrl:
-      process.env.STORAGE_PUBLIC_BASE_URL || 'http://localhost:9000/bartender',
+      // For the local driver default to a relative /uploads path so the app is
+      // fully usable without MinIO; S3 keeps the bucket-rooted default.
+      process.env.STORAGE_DRIVER === 's3-compatible'
+        ? process.env.STORAGE_PUBLIC_BASE_URL ||
+          'http://localhost:9000/bartender'
+        : process.env.STORAGE_PUBLIC_BASE_URL || '/uploads',
+    endpoint: process.env.STORAGE_ENDPOINT,
+    accessKey: process.env.STORAGE_ACCESS_KEY,
+    secretKey: process.env.STORAGE_SECRET_KEY,
+    bucket: process.env.STORAGE_BUCKET || 'bartender',
+    region: process.env.STORAGE_REGION || 'us-east-1',
   },
   posterTimeoutMs: parseInt(process.env.POSTER_TIMEOUT_MS || '30000', 10),
 });

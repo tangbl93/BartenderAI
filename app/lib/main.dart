@@ -5,14 +5,15 @@ import 'package:provider/provider.dart';
 import 'data/config/app_config.dart';
 import 'data/repositories/repositories.dart';
 import 'data/repositories/repository_factory.dart';
+import 'data/services/gaid_service.dart';
 import 'data/services/image_save_service.dart';
 import 'l10n/app_localizations.dart';
 import 'logic/auth_controller.dart';
 import 'logic/locale_controller.dart';
 import 'logic/onboarding_controller.dart';
-import 'ui/screens/auth/login_screen.dart';
-import 'ui/screens/home_shell.dart';
+import 'ui/screens/home/home_screen.dart';
 import 'ui/screens/onboarding/onboarding_screen.dart';
+import 'ui/screens/splash_screen.dart';
 import 'ui/theme/app_theme.dart';
 
 Future<void> main() async {
@@ -40,6 +41,7 @@ class HomeBartenderApp extends StatelessWidget {
     required this.localeController,
     required this.onboardingController,
     this.imageSaveService = const NoopImageSaveService(),
+    this.gaidService = const GaidService(),
   });
 
   final AppConfig config;
@@ -47,6 +49,7 @@ class HomeBartenderApp extends StatelessWidget {
   final LocaleController localeController;
   final OnboardingController onboardingController;
   final ImageSaveService imageSaveService;
+  final GaidService gaidService;
 
   @override
   Widget build(BuildContext context) {
@@ -55,20 +58,22 @@ class HomeBartenderApp extends StatelessWidget {
         Provider<AppConfig>.value(value: config),
         Provider<Repositories>.value(value: repositories),
         Provider<ImageSaveService>.value(value: imageSaveService),
+        Provider<GaidService>.value(value: gaidService),
         ChangeNotifierProvider<LocaleController>.value(value: localeController),
         ChangeNotifierProvider<OnboardingController>.value(
             value: onboardingController),
         ChangeNotifierProvider<AuthController>(
-          create: (_) => AuthController(repositories.auth),
+          create: (_) => AuthController(repositories.auth, gaidService),
         ),
       ],
       child: Consumer<LocaleController>(
         builder: (context, locale, _) {
           return MaterialApp(
-            title: 'Home Bartender AI',
+            title: 'Bartender AI',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.light(),
             darkTheme: AppTheme.dark(),
+            themeMode: ThemeMode.dark,
             locale: locale.locale,
             supportedLocales: AppLocalizations.supportedLocales,
             localizationsDelegates: const [
@@ -88,21 +93,41 @@ class HomeBartenderApp extends StatelessWidget {
 }
 
 /// Decides which top-level screen to show: onboarding (first run) →
-/// login (unauthenticated) → home shell.
-class _RootGate extends StatelessWidget {
+/// splash (device auto-register) → home. No login screen.
+class _RootGate extends StatefulWidget {
   const _RootGate();
+
+  @override
+  State<_RootGate> createState() => _RootGateState();
+}
+
+class _RootGateState extends State<_RootGate> {
+  bool _deviceReady = false;
+
+  Future<void> _ensureAccount(BuildContext context) async {
+    final auth = context.read<AuthController>();
+    final localeCtrl = context.read<LocaleController>();
+    final resolved = LocaleController.resolve(
+        localeCtrl.locale, WidgetsBinding.instance.platformDispatcher.locales);
+    await auth.ensureDeviceAccount(
+        locale: LocaleController.toContentLocale(resolved));
+    if (mounted) setState(() => _deviceReady = true);
+  }
 
   @override
   Widget build(BuildContext context) {
     final onboarding = context.watch<OnboardingController>();
-    final auth = context.watch<AuthController>();
 
     if (!onboarding.done) {
       return const OnboardingScreen();
     }
-    if (!auth.isLoggedIn) {
-      return const LoginScreen();
+    if (!_deviceReady) {
+      // Resolve a device id and silently register/login once, then proceed.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!_deviceReady) _ensureAccount(context);
+      });
+      return const SplashScreen();
     }
-    return const HomeShell();
+    return const HomeScreen();
   }
 }

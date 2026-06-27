@@ -16,7 +16,6 @@
   "commonError": "出错了",
   "commonLanguage": "语言",
   "commonSettings": "设置",
-
   "authLoginTitle": "登录",
   "authRegisterTitle": "注册账号",
   "authAccountLabel": "邮箱或手机号",
@@ -31,12 +30,12 @@
   "authInvalidCredentials": "账号或密码错误",
   "authAccountExists": "账号已存在",
   "authLogout": "退出登录",
-
+  "authPrivacyGaid": "我们使用设备的广告标识符（GAID）为你自动登录。你可以在「系统设置 → 隐私 → 广告」中随时重置该标识。",
+  "authSigningIn": "正在登录…",
   "navFridge": "翻冰箱",
   "navWall": "海报墙",
   "navLab": "实验室",
   "navProfile": "我的",
-
   "fridgeTitle": "翻冰箱",
   "fridgeSubtitle": "勾选你冰箱里有的材料",
   "fridgeCategoryBaseSpirit": "基酒",
@@ -47,17 +46,14 @@
   "fridgeGenerate": "生成配方",
   "fridgeNeedMore": "至少勾选 2 种材料才能调出可饮用的配方",
   "fridgeClear": "清空",
-
   "exampleCardTitle": "试试这些示例",
   "exampleCardSubtitle": "点击查看完整示例配方",
-
   "onboardingTitle": "欢迎",
   "onboardingStepSelectIngredients": "勾选你冰箱里有的材料",
   "onboardingStepGenerateRecipe": "AI 为你调一杯专属配方",
   "onboardingStepGeneratePoster": "生成海报矩阵，一键分享",
   "onboardingStepCheckIn": "在实验室为作品打卡",
   "onboardingReplay": "重看新手引导",
-
   "recipeResultTitle": "你的配方",
   "recipeAlcoholRange": "酒精浓度：{range}",
   "recipeIngredients": "所用材料",
@@ -69,7 +65,6 @@
   "recipeGuideTitle": "保姆级指南",
   "recipeMakePoster": "生成海报",
   "recipeGenerating": "正在为你调配…",
-
   "posterTitle": "海报矩阵",
   "posterDimensionHomeCloseup": "居家微酿特写",
   "posterDimensionBarCommercial": "酒吧商业海报",
@@ -83,7 +78,6 @@
   "posterSaved": "已保存到相册",
   "posterGenerating": "正在生成海报…",
   "posterTimeout": "生成超时，请重试",
-
   "labTitle": "我的微醺实验室",
   "labEmpty": "还没有打卡，调一杯来打卡吧！",
   "labCheckIn": "打卡",
@@ -98,13 +92,38 @@
   "labSubmittedPending": "已投稿，等待审核",
   "labDetailTitle": "作品详情",
   "labCreatedAt": "创建于 {date}",
-
   "wallTitle": "创意海报墙",
   "wallSortTime": "最新",
   "wallEmpty": "暂无已通过的海报",
-
   "moderationPrivate": "私有",
   "moderationPending": "待审核",
   "moderationApproved": "已通过",
-  "moderationRejected": "已拒绝"
+  "moderationRejected": "已拒绝",
+  "splashTagline": "调酒，从此随手可得",
+  "@splashTagline": {
+    "description": "Splash screen tagline under the brand name."
+  },
+  "onboardingStep1Title": "扫描你的冰箱",
+  "onboardingStep1Desc": "拍照或勾选你有的材料，AI 立刻为你调制专属配方。",
+  "onboardingStep2Title": "AI 调酒",
+  "onboardingStep2Desc": "根据你的材料和口味，发现独一无二的配方。",
+  "onboardingStep3Title": "赛博海报",
+  "onboardingStep3Desc": "一键为你的作品生成精美、可分享的社交媒体海报。",
+  "onboardingStep4Title": "社区墙",
+  "onboardingStep4Desc": "加入全球家庭调酒师社区，分享作品、登顶排行榜。",
+  "onboardingStartButton": "开始调制",
+  "homeTitle": "我的作品",
+  "homeEmpty": "还没有作品，点「制作」开始吧",
+  "craftMake": "制作",
+  "craftGeneratePoster": "生成分享图",
+  "craftConfirmTitle": "确认保存",
+  "craftAddPhotos": "添加成品照",
+  "craftPhotosOptional": "可选，最多 3 张",
+  "craftSave": "保存作品",
+  "craftSaved": "已保存到我的作品",
+  "profileUserId": "用户 ID",
+  "profileContactUs": "联系我们",
+  "profilePrivacy": "隐私协议",
+  "profileTerms": "用户协议",
+  "profileCopied": "已复制"
 }

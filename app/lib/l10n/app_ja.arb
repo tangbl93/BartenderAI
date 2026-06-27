@@ -16,7 +16,6 @@
   "commonError": "エラーが発生しました",
   "commonLanguage": "言語",
   "commonSettings": "設定",
-
   "authLoginTitle": "ログイン",
   "authRegisterTitle": "アカウント作成",
   "authAccountLabel": "メールまたは電話番号",
@@ -31,12 +30,12 @@
   "authInvalidCredentials": "アカウントまたはパスワードが正しくありません",
   "authAccountExists": "アカウントは既に存在します",
   "authLogout": "ログアウト",
-
+  "authPrivacyGaid": "デバイスの広告 ID（GAID）を利用して自動的にサインインします。Android の「設定 → プライバシー → 広告」からいつでもリセットできます。",
+  "authSigningIn": "サインイン中…",
   "navFridge": "冷蔵庫",
   "navWall": "ウォール",
   "navLab": "ラボ",
   "navProfile": "マイページ",
-
   "fridgeTitle": "冷蔵庫を開ける",
   "fridgeSubtitle": "冷蔵庫にある材料にチェック",
   "fridgeCategoryBaseSpirit": "ベーススピリッツ",
@@ -47,17 +46,14 @@
   "fridgeGenerate": "レシピを生成",
   "fridgeNeedMore": "飲めるレシピには材料を2つ以上選んでください",
   "fridgeClear": "クリア",
-
   "exampleCardTitle": "サンプルを試す",
   "exampleCardSubtitle": "タップしてサンプルレシピを見る",
-
   "onboardingTitle": "ようこそ",
   "onboardingStepSelectIngredients": "冷蔵庫にある材料にチェック",
   "onboardingStepGenerateRecipe": "AI があなた専用のレシピを調合",
   "onboardingStepGeneratePoster": "ポスターマトリクスを生成して共有",
   "onboardingStepCheckIn": "ラボで作品をチェックイン",
   "onboardingReplay": "チュートリアルをもう一度",
-
   "recipeResultTitle": "あなたのレシピ",
   "recipeAlcoholRange": "アルコール度数：{range}",
   "recipeIngredients": "材料",
@@ -69,7 +65,6 @@
   "recipeGuideTitle": "ていねいガイド",
   "recipeMakePoster": "ポスターを作成",
   "recipeGenerating": "レシピを調合中…",
-
   "posterTitle": "ポスターマトリクス",
   "posterDimensionHomeCloseup": "自家製クローズアップ",
   "posterDimensionBarCommercial": "バー商業ポスター",
@@ -83,7 +78,6 @@
   "posterSaved": "ギャラリーに保存しました",
   "posterGenerating": "ポスターを生成中…",
   "posterTimeout": "生成がタイムアウトしました。再試行してください",
-
   "labTitle": "マイ ほろよいラボ",
   "labEmpty": "まだチェックインがありません。一杯作ってチェックインしよう！",
   "labCheckIn": "チェックイン",
@@ -98,14 +92,39 @@
   "labSubmittedPending": "投稿しました。審査待ちです",
   "labDetailTitle": "作品の詳細",
   "labCreatedAt": "作成日 {date}",
-
   "wallTitle": "クリエイティブ ポスターウォール",
   "wallSortHot": "人気",
   "wallSortTime": "新着",
   "wallEmpty": "承認済みのポスターはまだありません",
-
   "moderationPrivate": "非公開",
   "moderationPending": "審査待ち",
   "moderationApproved": "承認済み",
-  "moderationRejected": "却下"
+  "moderationRejected": "却下",
+  "splashTagline": "カクテルが、いつも手の届くところに",
+  "@splashTagline": {
+    "description": "Splash screen tagline under the brand name."
+  },
+  "onboardingStep1Title": "冷蔵庫をスキャン",
+  "onboardingStep1Desc": "写真を撮るか材料を選ぶだけで、AIがあなただけのカクテル処方を即座に作ります。",
+  "onboardingStep2Title": "AI ミクソロジー",
+  "onboardingStep2Desc": "あなたの在庫と好みに合わせた、あなただけのカクテルを見つけよう。",
+  "onboardingStep3Title": "サイバーポスター",
+  "onboardingStep3Desc": "作品をワンクリックで、シェアできる魅力的なSNSポスターに。",
+  "onboardingStep4Title": "コミュニティウォール",
+  "onboardingStep4Desc": "世界のホームバーテンダーとつながろう。作品をシェアしてランキングを登る。",
+  "onboardingStartButton": "ミックス開始",
+  "homeTitle": "マイ作品",
+  "homeEmpty": "まだ作品がありません。「作成」で始めましょう",
+  "craftMake": "作成",
+  "craftGeneratePoster": "シェア画像を生成",
+  "craftConfirmTitle": "保存確認",
+  "craftAddPhotos": "完成写真を追加",
+  "craftPhotosOptional": "任意、最大3枚",
+  "craftSave": "作品を保存",
+  "craftSaved": "マイ作品に保存しました",
+  "profileUserId": "ユーザー ID",
+  "profileContactUs": "お問い合わせ",
+  "profilePrivacy": "プライバシーポリシー",
+  "profileTerms": "利用規約",
+  "profileCopied": "コピーしました"
 }

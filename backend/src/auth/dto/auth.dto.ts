@@ -28,6 +28,22 @@ export class LoginDto {
   password: string;
 }
 
+export class DeviceLoginDto {
+  @ApiProperty({ description: 'Android=GAID；其它平台=安装级设备标识' })
+  @IsString()
+  deviceId: string;
+
+  @ApiPropertyOptional({ enum: ['android', 'ios', 'web'], default: 'android' })
+  @IsOptional()
+  @IsString()
+  platform?: string;
+
+  @ApiPropertyOptional({ default: 'en' })
+  @IsOptional()
+  @IsString()
+  locale?: string;
+}
+
 export class UserDto {
   @ApiProperty()
   id: string;
@@ -40,6 +56,9 @@ export class UserDto {
 
   @ApiProperty({ enum: ['user', 'operator', 'admin'] })
   role: Role;
+
+  @ApiProperty({ default: false })
+  isDevice: boolean;
 }
 
 export class AuthResultDto {
