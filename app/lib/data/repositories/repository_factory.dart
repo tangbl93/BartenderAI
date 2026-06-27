@@ -1,32 +1,27 @@
 import '../config/app_config.dart';
 import '../services/api_service.dart';
 import 'api_repository.dart';
-import 'mock_repository.dart';
 import 'repositories.dart';
 
-/// Builds the [Repositories] bundle based on [AppConfig.useMock].
+/// Builds the [Repositories] bundle backed by the real HTTP backend, plus the
+/// [ApiService] so callers can push the auth token onto it.
 ///
-/// Both the mock and API implementations expose every repository interface,
-/// so a single instance backs all six slots.
-Repositories buildRepositories(AppConfig config, {ApiService? apiService}) {
-  if (config.useMock) {
-    final mock = MockRepository();
-    return Repositories(
-      auth: mock,
-      ingredients: mock,
-      recipes: mock,
-      posters: mock,
-      lab: mock,
-    );
-  }
-  final api = ApiRepository(
-    apiService ?? ApiService(baseUrl: config.apiBaseUrl),
-  );
-  return Repositories(
-    auth: api,
-    ingredients: api,
-    recipes: api,
-    posters: api,
-    lab: api,
+/// `apiService` may be injected (e.g. for tests with a stubbed transport).
+({Repositories repositories, ApiService api}) buildRepositories(
+  AppConfig config, {
+  ApiService? apiService,
+}) {
+  final api = apiService ?? ApiService(baseUrl: config.apiBaseUrl);
+  final repo = ApiRepository(api);
+  return (
+    repositories: Repositories(
+      auth: repo,
+      ingredients: repo,
+      recipes: repo,
+      posters: repo,
+      lab: repo,
+      fridge: repo,
+    ),
+    api: api,
   );
 }

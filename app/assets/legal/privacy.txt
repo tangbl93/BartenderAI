@@ -1,0 +1,32 @@
+Privacy Policy
+
+Last updated: June 27, 2026
+
+This application ("we") respects and protects your privacy. This policy explains how we handle information.
+
+1. Account & Sign-in
+The app is passwordless. On first use, it reads a device identifier (the Android advertising ID / GAID; if restricted or unavailable, a locally generated random id is used) to register and sign you in automatically — no phone number or email required.
+
+2. Information We Process
+· Device identifier: to recognize your account and attribute your creations.
+· Content you upload: the finished-product photos and notes you add when checking in.
+· Generation requests: the ingredients you pick and the recipes / posters generated.
+· Usage statistics: anonymized, aggregated stats used to improve the service.
+
+3. How We Use Information
+· To provide recipe generation, poster generation, and creation recording/display.
+· To generate images for you through an AI image model.
+
+4. Third-party Services
+Recipes and posters are produced through a third-party AI image-generation API; requests include only the necessary text description. We do not share your device identifier or your uploaded photos with it.
+
+5. Local Storage
+The app follows your system language; the local device identifier is stored on your device and can be cleared at any time.
+
+6. Your Rights
+You can reset the advertising identifier in system settings, or uninstall the app to clear local data. To delete your account or data, contact us.
+
+7. Changes to This Policy
+This policy may be updated; changes will be posted here.
+
+Contact: support@homebartender.example

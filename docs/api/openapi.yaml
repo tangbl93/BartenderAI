@@ -106,6 +106,13 @@ paths:
         - { name: category, in: query, schema: { $ref: '#/components/schemas/IngredientCategory' } }
       responses:
         '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Ingredient' } } } } }
+    post:
+      tags: [ingredients]
+      summary: 用户新增材料（即时生效、直接公开，配图后台生成）
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/PublicIngredientDto' } } } }
+      responses:
+        '201': { description: 已创建, content: { application/json: { schema: { $ref: '#/components/schemas/Ingredient' } } } }
+        '400': { description: 分类非法或名称为空 }
 
   /admin/ingredients:
     get:
@@ -400,6 +407,7 @@ components:
         category: { $ref: '#/components/schemas/IngredientCategory' }
         name: { type: string, description: 按请求 locale 解析后的显示名 }
         enabled: { type: boolean }
+        imageUrl: { type: string, nullable: true, description: 扁平插画配图 URL（异步生成，初始为空） }
     IngredientDto:
       type: object
       required: [category, names]
@@ -407,6 +415,13 @@ components:
         category: { $ref: '#/components/schemas/IngredientCategory' }
         names: { type: object, description: "多语言名称 { en, zh-CN, zh-TW, ja, ko }", additionalProperties: { type: string } }
         enabled: { type: boolean, default: true }
+    PublicIngredientDto:
+      type: object
+      required: [category, name]
+      properties:
+        category: { $ref: '#/components/schemas/IngredientCategory' }
+        name: { type: string, description: 材料名称（提交者当前语言）, maxLength: 40 }
+        locale: { type: string, description: 提交语言，决定 name 写入的语言键 }
 
     RecipeGenerateDto:
       type: object
@@ -427,6 +442,7 @@ components:
         alcoholRange: { type: string, example: "8-12% ABV" }
         safetyNotes: { type: array, items: { type: string }, description: 含适量饮用/未成年人禁饮提示 }
         isExample: { type: boolean, default: false }
+        imageUrl: { type: string, nullable: true, description: 扁平插画配图 URL（异步生成，初始为空） }
     RecipeItem:
       type: object
       properties: { ingredientId: { type: string }, name: { type: string }, amount: { type: string, example: "45 ml" }, optional: { type: boolean, default: false } }

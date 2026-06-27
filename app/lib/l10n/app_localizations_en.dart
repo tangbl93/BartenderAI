@@ -362,6 +362,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get craftMake => 'Craft';
 
   @override
+  String get craftTemplatesTitle => 'Make the same';
+
+  @override
+  String get craftDiyTitle => 'Pick your own';
+
+  @override
+  String get craftAddIngredient => 'Add ingredient';
+
+  @override
+  String get craftAddIngredientHint => 'Ingredient name';
+
+  @override
   String get craftGeneratePoster => 'Generate share image';
 
   @override
@@ -380,6 +392,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get craftSaved => 'Saved to your creations';
 
   @override
+  String get craftAiGenerated => 'AI MASTERPIECE GENERATED';
+
+  @override
   String get profileUserId => 'User ID';
 
   @override
@@ -393,4 +408,42 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileCopied => 'Copied';
+
+  @override
+  String get craftScannerTitle => 'Fridge Scanner';
+
+  @override
+  String get craftScanHint => 'Point at your fridge or bar and tap to scan';
+
+  @override
+  String get craftScanCta => 'Scan ingredients';
+
+  @override
+  String get craftScanning => 'Scanning…';
+
+  @override
+  String craftScanDetected(int count) {
+    return '$count ingredients found';
+  }
+
+  @override
+  String get craftSaveInventory => 'Save inventory';
+
+  @override
+  String get craftRescan => 'Re-scan';
+
+  @override
+  String get craftScanContinue => 'Continue';
+
+  @override
+  String get craftManualSelect => 'Pick manually';
+
+  @override
+  String get craftInventorySaved => 'Inventory saved';
+
+  @override
+  String get craftRecentScans => 'Recent scans';
+
+  @override
+  String get homeFeatured => 'Featured';
 }

@@ -782,6 +782,30 @@ abstract class AppLocalizations {
   /// **'Craft'**
   String get craftMake;
 
+  /// No description provided for @craftTemplatesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Make the same'**
+  String get craftTemplatesTitle;
+
+  /// No description provided for @craftDiyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick your own'**
+  String get craftDiyTitle;
+
+  /// No description provided for @craftAddIngredient.
+  ///
+  /// In en, this message translates to:
+  /// **'Add ingredient'**
+  String get craftAddIngredient;
+
+  /// No description provided for @craftAddIngredientHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ingredient name'**
+  String get craftAddIngredientHint;
+
   /// No description provided for @craftGeneratePoster.
   ///
   /// In en, this message translates to:
@@ -818,6 +842,12 @@ abstract class AppLocalizations {
   /// **'Saved to your creations'**
   String get craftSaved;
 
+  /// No description provided for @craftAiGenerated.
+  ///
+  /// In en, this message translates to:
+  /// **'AI MASTERPIECE GENERATED'**
+  String get craftAiGenerated;
+
   /// No description provided for @profileUserId.
   ///
   /// In en, this message translates to:
@@ -847,6 +877,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Copied'**
   String get profileCopied;
+
+  /// No description provided for @craftScannerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fridge Scanner'**
+  String get craftScannerTitle;
+
+  /// No description provided for @craftScanHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Point at your fridge or bar and tap to scan'**
+  String get craftScanHint;
+
+  /// No description provided for @craftScanCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan ingredients'**
+  String get craftScanCta;
+
+  /// No description provided for @craftScanning.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanning…'**
+  String get craftScanning;
+
+  /// No description provided for @craftScanDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} ingredients found'**
+  String craftScanDetected(int count);
+
+  /// No description provided for @craftSaveInventory.
+  ///
+  /// In en, this message translates to:
+  /// **'Save inventory'**
+  String get craftSaveInventory;
+
+  /// No description provided for @craftRescan.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-scan'**
+  String get craftRescan;
+
+  /// No description provided for @craftScanContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get craftScanContinue;
+
+  /// No description provided for @craftManualSelect.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick manually'**
+  String get craftManualSelect;
+
+  /// No description provided for @craftInventorySaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Inventory saved'**
+  String get craftInventorySaved;
+
+  /// No description provided for @craftRecentScans.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent scans'**
+  String get craftRecentScans;
+
+  /// No description provided for @homeFeatured.
+  ///
+  /// In en, this message translates to:
+  /// **'Featured'**
+  String get homeFeatured;
 }
 
 class _AppLocalizationsDelegate

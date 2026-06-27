@@ -99,6 +99,15 @@ export class TemplatesController {
   @ApiBearerAuth()
   @UseGuards(RolesGuard)
   @Roles('operator', 'admin')
+  @Post('admin/templates/:id/generate-image')
+  @ApiOperation({ summary: '用模板 prompt 生成参考图并存对象存储' })
+  generateImage(@Param('id') id: string) {
+    return this.service.generateReferenceImage(id);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(RolesGuard)
+  @Roles('operator', 'admin')
   @Post('admin/templates/:id/reference-image')
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: MAX_REF_BYTES } }))
   @ApiOperation({ summary: '上传/替换模板参考图（i2i 使用案例），存对象存储' })

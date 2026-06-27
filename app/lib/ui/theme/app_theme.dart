@@ -18,6 +18,8 @@ class AppTheme {
   static const Color neonCyan = Color(0xFF22e3ff);
   static const Color neonCyanDeep = Color(0xFF0bb8d6);
   static const Color neonMagenta = Color(0xFFff2ea6);
+  static const Color onSurfaceVariant = Color(0xFFbac9cd);
+  static const Color primarySoft = Color(0xFFc2f4ff);
   static const Color success = Color(0xFF28e0a0);
   static const Color danger = Color(0xFFff4d6d);
   static const Color warn = Color(0xFFffcf4d);

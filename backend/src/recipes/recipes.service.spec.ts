@@ -30,6 +30,12 @@ describe('RecipesService', () => {
       ds.getRepository(IngredientEntity) as any,
       new StubTextProvider(i18n),
       i18n,
+      // Stub illustration provider: never produces an image.
+      {
+        ingredientPrompt: () => 'prompt',
+        recipePrompt: () => 'prompt',
+        generate: async () => null,
+      } as any,
     );
   });
 

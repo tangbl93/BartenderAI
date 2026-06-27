@@ -17,6 +17,11 @@ describe('Home Bartender AI (e2e)', () => {
   beforeAll(async () => {
     process.env.NODE_ENV = 'test';
     process.env.JWT_SECRET = 'e2e-secret';
+    // Force the deterministic stub image provider regardless of .env, so the
+    // poster happy-path is network-independent (OS env wins over .env in
+    // ConfigModule).
+    process.env.IMAGE_PROVIDER = 'stub';
+    process.env.IMAGE_API_KEY = '';
 
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],

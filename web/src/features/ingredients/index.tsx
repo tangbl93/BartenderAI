@@ -156,6 +156,7 @@ export function Ingredients() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className='w-16'>配图</TableHead>
                 <TableHead>显示名</TableHead>
                 <TableHead>分类</TableHead>
                 <TableHead>简体中文</TableHead>
@@ -167,7 +168,7 @@ export function Ingredients() {
               {isLoading ? (
                 <TableRow>
                   <TableCell
-                    colSpan={5}
+                    colSpan={6}
                     className='h-24 text-center text-muted-foreground'
                   >
                     加载中...
@@ -176,7 +177,7 @@ export function Ingredients() {
               ) : filtered.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={5}
+                    colSpan={6}
                     className='h-24 text-center text-muted-foreground'
                   >
                     暂无数据
@@ -185,6 +186,20 @@ export function Ingredients() {
               ) : (
                 filtered.map((it) => (
                   <TableRow key={it.id}>
+                    <TableCell>
+                      {it.imageUrl ? (
+                        <img
+                          src={it.imageUrl}
+                          alt={it.name}
+                          className='size-10 rounded-md object-cover'
+                          loading='lazy'
+                        />
+                      ) : (
+                        <div className='flex size-10 items-center justify-center rounded-md border border-dashed text-muted-foreground text-xs'>
+                          —
+                        </div>
+                      )}
+                    </TableCell>
                     <TableCell className='font-medium'>{it.name}</TableCell>
                     <TableCell>
                       <Badge variant='outline'>

@@ -53,6 +53,11 @@ export class RecipeEntity {
   @Column({ default: false })
   isExample: boolean;
 
+  /** Flat-illustration artwork (object-storage URL). Generated async; nullable
+   *  until the image provider returns. */
+  @Column({ type: 'varchar', nullable: true })
+  imageUrl: string | null;
+
   @Column({ type: 'varchar', nullable: true })
   ownerId: string | null;
 

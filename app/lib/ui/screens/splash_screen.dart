@@ -5,12 +5,17 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
+import '../widgets/cocktail_logo.dart';
 
 /// Cyber-neon splash shown during the silent device-login window.
 /// Pixel-faithful port of the Google Stitch splash design: near-black bg with
-/// a radial cyan glow and a stardust noise overlay, the brand logo mark
-/// centered with the wordmark and tagline, and a spinning + pulsing neon
-/// loader ring pinned to the bottom.
+/// a radial cyan glow and a stardust noise overlay, the neon cocktail-glass
+/// brand mark centered with the wordmark and tagline, and a spinning + pulsing
+/// neon loader ring pinned to the bottom.
+///
+/// Motion: the mark, wordmark and tagline stagger in on first frame; the mark
+/// then breathes a soft glow, and the loader spins while pulsing both its scale
+/// and opacity (matching the design's `pulse-ring` keyframes).
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -20,12 +25,24 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
+  late final AnimationController _intro;
   late final AnimationController _spin;
   late final AnimationController _pulse;
+
+  // Staggered entrance segments.
+  late final Animation<double> _logoFade;
+  late final Animation<double> _logoScale;
+  late final Animation<double> _wordFade;
+  late final Animation<double> _wordSlide;
+  late final Animation<double> _taglineFade;
 
   @override
   void initState() {
     super.initState();
+    _intro = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1100),
+    );
     _spin = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 1),
@@ -34,10 +51,22 @@ class _SplashScreenState extends State<SplashScreen>
       vsync: this,
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
+
+    _logoFade = _seg(0.0, 0.5, Curves.easeOut);
+    _logoScale = Tween(begin: 0.86, end: 1.0).animate(_seg(0.0, 0.6, Curves.easeOutBack));
+    _wordFade = _seg(0.35, 0.8, Curves.easeOut);
+    _wordSlide = Tween(begin: 14.0, end: 0.0).animate(_seg(0.35, 0.8, Curves.easeOut));
+    _taglineFade = _seg(0.55, 1.0, Curves.easeOut);
+
+    _intro.forward();
   }
+
+  CurvedAnimation _seg(double begin, double end, Curve curve) =>
+      CurvedAnimation(parent: _intro, curve: Interval(begin, end, curve: curve));
 
   @override
   void dispose() {
+    _intro.dispose();
     _spin.dispose();
     _pulse.dispose();
     super.dispose();
@@ -78,32 +107,56 @@ class _SplashScreenState extends State<SplashScreen>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset('assets/logo.jpg', width: 140, height: 140),
-                const SizedBox(height: 28),
-                Text(
-                  'Bartender AI',
-                  style: GoogleFonts.chakraPetch(
-                    fontSize: 30,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.5,
-                    height: 1.05,
-                    color: AppTheme.text,
-                    shadows: [
-                      Shadow(
-                        color: AppTheme.neonCyan.withValues(alpha: 0.8),
-                        blurRadius: 16,
+                // Neon cocktail-glass mark with a breathing glow.
+                FadeTransition(
+                  opacity: _logoFade,
+                  child: ScaleTransition(
+                    scale: _logoScale,
+                    child: AnimatedBuilder(
+                      animation: _pulse,
+                      builder: (_, _) => CocktailLogo(
+                        size: 128,
+                        glow: 0.55 + 0.45 * _pulse.value,
                       ),
-                    ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 28),
+                FadeTransition(
+                  opacity: _wordFade,
+                  child: AnimatedBuilder(
+                    animation: _wordSlide,
+                    builder: (_, child) =>
+                        Transform.translate(offset: Offset(0, _wordSlide.value), child: child),
+                    child: Text(
+                      'Bartender AI',
+                      style: GoogleFonts.chakraPetch(
+                        fontSize: 30,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.5,
+                        height: 1.05,
+                        color: AppTheme.text,
+                        shadows: [
+                          Shadow(
+                            color: AppTheme.neonCyan.withValues(alpha: 0.8),
+                            blurRadius: 16,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),
-                Text(
-                  t.splashTagline,
-                  style: GoogleFonts.sora(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w300,
-                    letterSpacing: 2.8,
-                    color: AppTheme.textDim,
+                FadeTransition(
+                  opacity: _taglineFade,
+                  child: Text(
+                    t.splashTagline,
+                    style: GoogleFonts.sora(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w300,
+                      letterSpacing: 2.8,
+                      color: AppTheme.textDim,
+                    ),
                   ),
                 ),
               ],
@@ -115,11 +168,15 @@ class _SplashScreenState extends State<SplashScreen>
             left: 0,
             right: 0,
             child: Center(
-              child: ScaleTransition(
-                scale: Tween(begin: 0.85, end: 1.0).animate(_pulse),
-                child: RotationTransition(
-                  turns: _spin,
-                  child: const _LoaderRing(),
+              // Pulse opacity 0.3→1 and scale 0.8→1 in lockstep, per the design.
+              child: FadeTransition(
+                opacity: Tween(begin: 0.3, end: 1.0).animate(_pulse),
+                child: ScaleTransition(
+                  scale: Tween(begin: 0.8, end: 1.0).animate(_pulse),
+                  child: RotationTransition(
+                    turns: _spin,
+                    child: const _LoaderRing(),
+                  ),
                 ),
               ),
             ),

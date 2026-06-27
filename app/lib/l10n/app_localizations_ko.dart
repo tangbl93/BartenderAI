@@ -356,6 +356,18 @@ class AppLocalizationsKo extends AppLocalizations {
   String get craftMake => '제작';
 
   @override
+  String get craftTemplatesTitle => '같은 걸로 제작';
+
+  @override
+  String get craftDiyTitle => '재료 선택';
+
+  @override
+  String get craftAddIngredient => '재료 추가';
+
+  @override
+  String get craftAddIngredientHint => '재료 이름';
+
+  @override
   String get craftGeneratePoster => '공유 이미지 생성';
 
   @override
@@ -374,6 +386,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get craftSaved => '내 작품에 저장됨';
 
   @override
+  String get craftAiGenerated => 'AI 마스터피스 생성 완료';
+
+  @override
   String get profileUserId => '사용자 ID';
 
   @override
@@ -387,4 +402,42 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get profileCopied => '복사됨';
+
+  @override
+  String get craftScannerTitle => '냉장고 스캔';
+
+  @override
+  String get craftScanHint => '냉장고나 바를 향해 탭하여 스캔';
+
+  @override
+  String get craftScanCta => '재료 스캔';
+
+  @override
+  String get craftScanning => '스캔 중…';
+
+  @override
+  String craftScanDetected(int count) {
+    return '재료 $count개 인식됨';
+  }
+
+  @override
+  String get craftSaveInventory => '재고 저장';
+
+  @override
+  String get craftRescan => '다시 스캔';
+
+  @override
+  String get craftScanContinue => '계속';
+
+  @override
+  String get craftManualSelect => '직접 선택';
+
+  @override
+  String get craftInventorySaved => '재고가 저장되었습니다';
+
+  @override
+  String get craftRecentScans => '최근 스캔';
+
+  @override
+  String get homeFeatured => '추천';
 }

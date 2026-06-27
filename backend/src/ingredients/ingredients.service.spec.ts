@@ -11,11 +11,20 @@ describe('IngredientsService', () => {
   let ds: DataSource;
   let service: IngredientsService;
 
+  // Stub illustration provider: never produces an image, so creation is
+  // synchronous and deterministic for these tests.
+  const illustration = {
+    ingredientPrompt: () => 'prompt',
+    recipePrompt: () => 'prompt',
+    generate: async () => null,
+  } as any;
+
   beforeEach(async () => {
     ds = await createTestDataSource();
     service = new IngredientsService(
       ds.getRepository(IngredientEntity),
       ds.getRepository(RecipeEntity),
+      illustration,
     );
   });
 

@@ -1,20 +1,16 @@
 /// Application-wide configuration.
 ///
-/// [useMock] decides whether the app runs against a real backend or the
-/// in-memory mock repository. It defaults to `true` so the app compiles and
-/// runs without a backend, and can be overridden at build time with:
-///
-///   flutter run --dart-define=USE_MOCK=false --dart-define=API_BASE_URL=...
+/// The backend API base URL is hardcoded below — edit this one constant when
+/// repointing the app at a different backend.
 class AppConfig {
   const AppConfig({
-    required this.useMock,
-    required this.apiBaseUrl,
     this.contactEmail = 'support@homebartender.example',
     this.webAdminBaseUrl = _defaultWebAdmin,
   });
 
-  final bool useMock;
-  final String apiBaseUrl;
+  /// Hardcoded backend API base URL.
+  /// iOS 模拟器/桌面用 localhost；Android 模拟器改 10.0.2.2；真机改后端 LAN IP。
+  final String apiBaseUrl = 'http://localhost:3000/api/v1';
 
   /// Profile-screen contact (mailto).
   final String contactEmail;
@@ -28,23 +24,13 @@ class AppConfig {
   String get privacyPolicyUrl => '$webAdminBaseUrl/privacy';
   String get termsOfServiceUrl => '$webAdminBaseUrl/terms';
 
-  static const String _defaultBaseUrl = 'http://localhost:3000/api/v1';
   static const String _defaultWebAdmin = 'https://homebartender.example';
 
   factory AppConfig.fromEnvironment() {
-    const useMock = bool.fromEnvironment('USE_MOCK', defaultValue: true);
-    const baseUrl = String.fromEnvironment(
-      'API_BASE_URL',
-      defaultValue: _defaultBaseUrl,
-    );
     const webAdmin = String.fromEnvironment(
       'WEB_ADMIN_BASE_URL',
       defaultValue: _defaultWebAdmin,
     );
-    return const AppConfig(
-      useMock: useMock,
-      apiBaseUrl: baseUrl,
-      webAdminBaseUrl: webAdmin,
-    );
+    return AppConfig(webAdminBaseUrl: webAdmin);
   }
 }

@@ -13,6 +13,7 @@ import { RecipesModule } from './recipes/recipes.module';
 import { TemplatesModule } from './templates/templates.module';
 import { PostersModule } from './posters/posters.module';
 import { LabModule } from './lab/lab.module';
+import { FridgeModule } from './fridge/fridge.module';
 import { ModerationModule } from './moderation/moderation.module';
 import { StatsModule } from './stats/stats.module';
 import { AdminModule } from './admin/admin.module';
@@ -35,6 +36,7 @@ import { StorageModule } from './storage/storage.module';
     TemplatesModule,
     PostersModule,
     LabModule,
+    FridgeModule,
     ModerationModule,
     StatsModule,
     StorageModule,

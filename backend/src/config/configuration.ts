@@ -7,12 +7,6 @@ export interface AppConfig {
     expiresIn: string;
     refreshExpiresIn: string;
   };
-  text: {
-    provider: string;
-    baseUrl?: string;
-    apiKey?: string;
-    model?: string;
-  };
   image: {
     provider: string;
     baseUrl?: string;
@@ -40,12 +34,6 @@ export default (): AppConfig => ({
     secret: process.env.JWT_SECRET || 'change-me-in-development',
     expiresIn: process.env.JWT_EXPIRES_IN || '2h',
     refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
-  },
-  text: {
-    provider: process.env.TEXT_PROVIDER || 'stub',
-    baseUrl: process.env.TEXT_API_BASE_URL,
-    apiKey: process.env.TEXT_API_KEY,
-    model: process.env.TEXT_MODEL,
   },
   image: {
     provider: process.env.IMAGE_PROVIDER || 'stub',

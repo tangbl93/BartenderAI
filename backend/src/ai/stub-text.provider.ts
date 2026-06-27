@@ -5,24 +5,22 @@ import {
   GeneratedRecipe,
   GeneratedRecipeItem,
   TextGenerationRequest,
-  TextProvider,
   TextProviderIngredient,
 } from './text-provider.interface';
 import { COCKTAIL_SIGNATURES, CocktailSignature } from './cocktail-signatures';
 
 /**
- * Deterministic stub text provider. Two modes:
+ * Deterministic recipe generator (no LLM). Two modes:
  *  1. RECOGNIZE — if the selected ingredients contain every required en-name
  *     of a CocktailSignature, return that signature's authored name/tagline/
  *     steps (locale-resolved) + signature amounts + signature ABV.
  *  2. COMPOSE — otherwise build a locale-aware "Smash"/"特调" style drink
  *     from the spirit + mixer + garnish that were actually selected.
  *
- * Used for dev and tests so the full pipeline runs with zero external
- * services. Output is locale-aware (zh-TW = Traditional Chinese).
+ * Output is locale-aware (zh-TW = Traditional Chinese).
  */
 @Injectable()
-export class StubTextProvider implements TextProvider {
+export class StubTextProvider {
   constructor(private readonly i18n: I18nService) {}
 
   async generateRecipe(req: TextGenerationRequest): Promise<GeneratedRecipe> {

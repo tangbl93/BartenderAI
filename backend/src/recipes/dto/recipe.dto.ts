@@ -55,4 +55,9 @@ export class RecipeDto {
   safetyNotes: string[];
   @ApiProperty({ default: false })
   isExample: boolean;
+  @ApiProperty({
+    nullable: true,
+    description: '扁平插画配图 URL（异步生成，初始为空）',
+  })
+  imageUrl: string | null;
 }

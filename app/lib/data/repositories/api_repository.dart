@@ -2,7 +2,7 @@ import '../models/models.dart';
 import '../services/api_service.dart';
 import 'repositories.dart';
 
-/// HTTP-backed repositories. Selected when `AppConfig.useMock == false`.
+/// HTTP-backed repositories used in production (the app always runs against the real backend).
 /// Each delegates to [ApiService] and shares its bearer token.
 class ApiRepository
     implements
@@ -10,7 +10,8 @@ class ApiRepository
         IngredientRepository,
         RecipeRepository,
         PosterRepository,
-        LabRepository {
+        LabRepository,
+        FridgeInventoryRepository {
   ApiRepository(this._api);
 
   final ApiService _api;
@@ -40,12 +41,21 @@ class ApiRepository
   }
 
   @override
+  Future<Ingredient> add(
+      IngredientCategory category, String name, String locale) {
+    return _api.createIngredient(category, name, locale);
+  }
+
+  @override
   Future<Recipe> generate(List<String> ingredientIds, String locale) {
     return _api.generateRecipe(ingredientIds, locale);
   }
 
   @override
   Future<List<Recipe>> examples(String locale) => _api.recipeExamples(locale);
+
+  @override
+  Future<List<StyleTemplate>> templates() => _api.templates();
 
   @override
   Future<PosterJob> createJob(String recipeId, String locale,
@@ -68,4 +78,17 @@ class ApiRepository
     return _api.createLabEntry(recipeId, posterImageUrl,
         photos: photos, note: note);
   }
+
+  @override
+  Future<ScanInventory> save(List<String> ingredientIds,
+      {required String summary, String? imageUrl}) {
+    return _api.saveFridgeScan(ingredientIds,
+        summary: summary, imageUrl: imageUrl);
+  }
+
+  @override
+  Future<List<ScanInventory>> recent() => _api.fridgeScans();
+
+  @override
+  Future<ScanInventory?> latest() => _api.latestFridgeScan();
 }

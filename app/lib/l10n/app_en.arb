@@ -143,15 +143,39 @@
   "homeTitle": "My Creations",
   "homeEmpty": "No creations yet. Tap Craft to start.",
   "craftMake": "Craft",
+  "craftTemplatesTitle": "Make the same",
+  "craftDiyTitle": "Pick your own",
+  "craftAddIngredient": "Add ingredient",
+  "craftAddIngredientHint": "Ingredient name",
   "craftGeneratePoster": "Generate share image",
   "craftConfirmTitle": "Save creation",
   "craftAddPhotos": "Add finished photos",
   "craftPhotosOptional": "Optional, up to 3",
   "craftSave": "Save creation",
   "craftSaved": "Saved to your creations",
+  "craftAiGenerated": "AI MASTERPIECE GENERATED",
   "profileUserId": "User ID",
   "profileContactUs": "Contact us",
   "profilePrivacy": "Privacy policy",
   "profileTerms": "Terms of service",
-  "profileCopied": "Copied"
+  "profileCopied": "Copied",
+  "craftScannerTitle": "Fridge Scanner",
+  "craftScanHint": "Point at your fridge or bar and tap to scan",
+  "craftScanCta": "Scan ingredients",
+  "craftScanning": "Scanning…",
+  "craftScanDetected": "{count} ingredients found",
+  "craftSaveInventory": "Save inventory",
+  "craftRescan": "Re-scan",
+  "craftScanContinue": "Continue",
+  "craftManualSelect": "Pick manually",
+  "craftInventorySaved": "Inventory saved",
+  "craftRecentScans": "Recent scans",
+  "homeFeatured": "Featured",
+  "@craftScanDetected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

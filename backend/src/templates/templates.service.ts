@@ -21,6 +21,13 @@ const DEFAULT_LAYOUT: LayoutConfig = {
   watermarkPosition: 'bottom-right',
 };
 
+const SIZE_BY_DIMENSION: Record<string, string> = {
+  home_closeup: '1024x1024',
+  bar_commercial: '1024x1536',
+  steps_long: '768x1536',
+  custom: '1024x1024',
+};
+
 @Injectable()
 export class TemplatesService {
   constructor(
@@ -159,6 +166,41 @@ export class TemplatesService {
       filename: file.filename,
       data: file.data,
       mimetype: file.mimetype,
+    });
+    entity.referenceImageUrl = url;
+    await this.templates.save(entity);
+    return { referenceImageUrl: url };
+  }
+
+  /** Generate a reference image from the template's prompt via the image
+   *  provider, persist it to object storage, and store as referenceImageUrl. */
+  async generateReferenceImage(
+    id: string,
+  ): Promise<{ referenceImageUrl: string }> {
+    const entity = await this.getEntity(id);
+    const size = SIZE_BY_DIMENSION[entity.dimension] || '1024x1024';
+    const { imageUrl } = await this.imageProvider.generateImage({
+      prompt: entity.prompt,
+      size,
+      seed: `template-${entity.id}-v${entity.version}`,
+    });
+    if (!imageUrl) {
+      throw new Error('Image provider returned no image');
+    }
+    // Fetch bytes (works for both http(s) URLs and data: URLs), then persist.
+    const res = await fetch(imageUrl);
+    if (!res.ok) {
+      throw new Error(`Fetch generated image failed: ${res.status}`);
+    }
+    const mimetype = res.headers.get('content-type') || 'image/png';
+    const ext = mimetype.includes('jpeg') || mimetype.includes('jpg')
+      ? '.jpg'
+      : '.png';
+    const data = Buffer.from(await res.arrayBuffer());
+    const { url } = await this.storage.upload({
+      filename: `template-${entity.id}${ext}`,
+      data,
+      mimetype,
     });
     entity.referenceImageUrl = url;
     await this.templates.save(entity);

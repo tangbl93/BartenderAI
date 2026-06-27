@@ -1,0 +1,28 @@
+Terms of Service
+
+Last updated: June 27, 2026
+
+Welcome to the app. By using it, you agree to these terms.
+
+1. The Service
+The app generates cocktail recipes based on the ingredients you select, produces AI poster artwork, and records your creations. All output is for creative assistance only.
+
+2. Account
+The app creates an account for you automatically using a device identifier. You are responsible for safeguarding your device; issues arising from a lost device are yours to bear.
+
+3. User Content
+The finished-product photos and notes you upload ("User Content") belong to you. You grant us a limited license to store and display that content for the purpose of providing the service (showing it in your creations list). Do not upload content that is infringing, illegal, or that violates others' privacy.
+
+4. AI-Generated Content
+Recipes and posters are produced by an AI model and may be inaccurate or otherwise imperfect. Generated content is for creative reference only; we make no guarantee as to its accuracy, safety, or fitness. Use it sensibly, in moderation, and lawfully. No alcohol for minors.
+
+5. Prohibited Conduct
+You may not use the service for any illegal, infringing, harassing, misleading, or service-disrupting activity.
+
+6. Disclaimer
+To the extent permitted by law, the service is provided "as is," and we are not liable for losses arising from its use.
+
+7. Changes & Termination
+We may change the service or these terms. You may stop using and uninstall the app at any time.
+
+Contact: support@homebartender.example

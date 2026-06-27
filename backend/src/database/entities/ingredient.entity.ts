@@ -22,6 +22,16 @@ export class IngredientEntity {
   @Column({ default: true })
   enabled: boolean;
 
+  /** Flat-illustration artwork (object-storage URL). Generated async; nullable
+   *  until the image provider returns. */
+  @Column({ type: 'varchar', nullable: true })
+  imageUrl: string | null;
+
+  /** User id of a community contributor, or null for built-in/admin entries.
+   *  User-added ingredients are public immediately. */
+  @Column({ type: 'varchar', nullable: true })
+  createdBy: string | null;
+
   @CreateDateColumn()
   createdAt: Date;
 

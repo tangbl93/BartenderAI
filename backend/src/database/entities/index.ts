@@ -6,6 +6,7 @@ import { PosterJobEntity } from './poster-job.entity';
 import { PosterEntity } from './poster.entity';
 import { LabEntryEntity } from './lab-entry.entity';
 import { ModerationRecordEntity } from './moderation-record.entity';
+import { FridgeScanEntity } from './fridge-scan.entity';
 
 export const ENTITIES = [
   UserEntity,
@@ -16,6 +17,7 @@ export const ENTITIES = [
   PosterEntity,
   LabEntryEntity,
   ModerationRecordEntity,
+  FridgeScanEntity,
 ];
 
 export {
@@ -27,4 +29,5 @@ export {
   PosterEntity,
   LabEntryEntity,
   ModerationRecordEntity,
+  FridgeScanEntity,
 };

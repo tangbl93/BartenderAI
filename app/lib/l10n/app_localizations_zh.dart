@@ -171,7 +171,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get onboardingStepCheckIn => '在实验室为作品打卡';
 
   @override
-  String get onboardingReplay => '重看新手引导';
+  String get onboardingReplay => '查看引导';
 
   @override
   String get recipeResultTitle => '你的配方';
@@ -355,6 +355,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get craftMake => '制作';
 
   @override
+  String get craftTemplatesTitle => '制作同款';
+
+  @override
+  String get craftDiyTitle => '自选材料';
+
+  @override
+  String get craftAddIngredient => '添加材料';
+
+  @override
+  String get craftAddIngredientHint => '材料名称';
+
+  @override
   String get craftGeneratePoster => '生成分享图';
 
   @override
@@ -373,6 +385,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get craftSaved => '已保存到我的作品';
 
   @override
+  String get craftAiGenerated => 'AI 大师作品已生成';
+
+  @override
   String get profileUserId => '用户 ID';
 
   @override
@@ -386,6 +401,44 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get profileCopied => '已复制';
+
+  @override
+  String get craftScannerTitle => '冰箱扫描';
+
+  @override
+  String get craftScanHint => '对准冰箱或吧台，点击开始扫描';
+
+  @override
+  String get craftScanCta => '扫描材料';
+
+  @override
+  String get craftScanning => '扫描中…';
+
+  @override
+  String craftScanDetected(int count) {
+    return '识别到 $count 种材料';
+  }
+
+  @override
+  String get craftSaveInventory => '保存当前库存';
+
+  @override
+  String get craftRescan => '重新扫描';
+
+  @override
+  String get craftScanContinue => '继续';
+
+  @override
+  String get craftManualSelect => '直接选材料';
+
+  @override
+  String get craftInventorySaved => '库存已保存';
+
+  @override
+  String get craftRecentScans => '最近扫描';
+
+  @override
+  String get homeFeatured => '精选';
 }
 
 /// The translations for Chinese, as used in China (`zh_CN`).
@@ -555,7 +608,7 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get onboardingStepCheckIn => '在实验室为作品打卡';
 
   @override
-  String get onboardingReplay => '重看新手引导';
+  String get onboardingReplay => '查看引导';
 
   @override
   String get recipeResultTitle => '你的配方';
@@ -739,6 +792,18 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get craftMake => '制作';
 
   @override
+  String get craftTemplatesTitle => '制作同款';
+
+  @override
+  String get craftDiyTitle => '自选材料';
+
+  @override
+  String get craftAddIngredient => '添加材料';
+
+  @override
+  String get craftAddIngredientHint => '材料名称';
+
+  @override
   String get craftGeneratePoster => '生成分享图';
 
   @override
@@ -757,6 +822,9 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get craftSaved => '已保存到我的作品';
 
   @override
+  String get craftAiGenerated => 'AI 大师作品已生成';
+
+  @override
   String get profileUserId => '用户 ID';
 
   @override
@@ -770,6 +838,44 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get profileCopied => '已复制';
+
+  @override
+  String get craftScannerTitle => '冰箱扫描';
+
+  @override
+  String get craftScanHint => '对准冰箱或吧台，点击开始扫描';
+
+  @override
+  String get craftScanCta => '扫描材料';
+
+  @override
+  String get craftScanning => '扫描中…';
+
+  @override
+  String craftScanDetected(int count) {
+    return '识别到 $count 种材料';
+  }
+
+  @override
+  String get craftSaveInventory => '保存当前库存';
+
+  @override
+  String get craftRescan => '重新扫描';
+
+  @override
+  String get craftScanContinue => '继续';
+
+  @override
+  String get craftManualSelect => '直接选材料';
+
+  @override
+  String get craftInventorySaved => '库存已保存';
+
+  @override
+  String get craftRecentScans => '最近扫描';
+
+  @override
+  String get homeFeatured => '精选';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -939,7 +1045,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get onboardingStepCheckIn => '在實驗室為作品打卡';
 
   @override
-  String get onboardingReplay => '重看新手導覽';
+  String get onboardingReplay => '查看引導';
 
   @override
   String get recipeResultTitle => '你的配方';
@@ -1120,6 +1226,18 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get craftMake => '製作';
 
   @override
+  String get craftTemplatesTitle => '製作同款';
+
+  @override
+  String get craftDiyTitle => '自選材料';
+
+  @override
+  String get craftAddIngredient => '新增材料';
+
+  @override
+  String get craftAddIngredientHint => '材料名稱';
+
+  @override
   String get craftGeneratePoster => '生成分享圖';
 
   @override
@@ -1138,6 +1256,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get craftSaved => '已儲存到我的作品';
 
   @override
+  String get craftAiGenerated => 'AI 大師作品已生成';
+
+  @override
   String get profileUserId => '使用者 ID';
 
   @override
@@ -1151,4 +1272,42 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get profileCopied => '已複製';
+
+  @override
+  String get craftScannerTitle => '冰箱掃描';
+
+  @override
+  String get craftScanHint => '對準冰箱或吧台，點擊開始掃描';
+
+  @override
+  String get craftScanCta => '掃描材料';
+
+  @override
+  String get craftScanning => '掃描中…';
+
+  @override
+  String craftScanDetected(int count) {
+    return '辨識到 $count 種材料';
+  }
+
+  @override
+  String get craftSaveInventory => '儲存目前庫存';
+
+  @override
+  String get craftRescan => '重新掃描';
+
+  @override
+  String get craftScanContinue => '繼續';
+
+  @override
+  String get craftManualSelect => '直接選材料';
+
+  @override
+  String get craftInventorySaved => '庫存已儲存';
+
+  @override
+  String get craftRecentScans => '最近掃描';
+
+  @override
+  String get homeFeatured => '精選';
 }

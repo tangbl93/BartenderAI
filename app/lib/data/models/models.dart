@@ -186,6 +186,7 @@ class Ingredient {
     required this.category,
     required this.name,
     required this.enabled,
+    this.imageUrl,
   });
 
   final String id;
@@ -195,12 +196,19 @@ class Ingredient {
   final String name;
   final bool enabled;
 
+  /// Flat-illustration artwork URL. Null/empty until the backend finishes
+  /// generating it asynchronously — render a placeholder in that case.
+  final String? imageUrl;
+
   factory Ingredient.fromJson(Map<String, dynamic> json) {
     return Ingredient(
       id: json['id']?.toString() ?? '',
       category: IngredientCategory.fromWire(json['category']?.toString()),
       name: json['name']?.toString() ?? '',
       enabled: json['enabled'] as bool? ?? true,
+      imageUrl: (json['imageUrl']?.toString().isNotEmpty ?? false)
+          ? json['imageUrl'].toString()
+          : null,
     );
   }
 }
@@ -254,6 +262,7 @@ class Recipe {
     required this.alcoholRange,
     required this.safetyNotes,
     required this.isExample,
+    this.imageUrl,
   });
 
   final String id;
@@ -266,6 +275,10 @@ class Recipe {
   final String alcoholRange;
   final List<String> safetyNotes;
   final bool isExample;
+
+  /// Flat-illustration artwork URL. Null/empty until the backend finishes
+  /// generating it asynchronously.
+  final String? imageUrl;
 
   factory Recipe.fromJson(Map<String, dynamic> json) {
     return Recipe(
@@ -289,6 +302,9 @@ class Recipe {
           .map((e) => e.toString())
           .toList(),
       isExample: json['isExample'] as bool? ?? false,
+      imageUrl: (json['imageUrl']?.toString().isNotEmpty ?? false)
+          ? json['imageUrl'].toString()
+          : null,
     );
   }
 }
@@ -435,6 +451,8 @@ class LabEntry {
     required this.isPublic,
     required this.moderationStatus,
     required this.createdAt,
+    this.jobId,
+    this.posterStatus,
   });
 
   final String id;
@@ -451,6 +469,20 @@ class LabEntry {
   final ModerationStatus moderationStatus;
   final DateTime createdAt;
 
+  /// The poster job that produces this entry's share image (async on the
+  /// backend). Present when the entry was created via "request succeeds →
+  /// return home"; null for legacy entries.
+  final String? jobId;
+
+  /// Status of the share-image job. Null/pending/running ⇒ still generating.
+  final PosterStatus? posterStatus;
+
+  /// True while the system share image is still being generated.
+  bool get isGenerating =>
+      posterStatus == null ||
+      posterStatus == PosterStatus.pending ||
+      posterStatus == PosterStatus.running;
+
   /// Card display image: prefer user photos, fall back to the system poster.
   String get imageUrl =>
       photos.isNotEmpty ? photos.first : posterImageUrl;
@@ -464,6 +496,12 @@ class LabEntry {
           .map((e) => e.toString())
           .toList(),
       result: LabResult.fromWire(json['result']?.toString()),
+      jobId: (json['jobId']?.toString().isNotEmpty ?? false)
+          ? json['jobId'].toString()
+          : null,
+      posterStatus: json['posterStatus'] == null
+          ? null
+          : PosterStatus.fromWire(json['posterStatus']?.toString()),
       note: json['note']?.toString() ?? '',
       isPublic: json['isPublic'] as bool? ?? false,
       moderationStatus:
@@ -473,6 +511,54 @@ class LabEntry {
               DateTime.now(),
     );
   }
+}
+
+/// A saved fridge scan / bar inventory snapshot — the set of ingredient ids
+/// the user had on hand, with a display [summary] (localized ingredient names
+/// joined) and an optional reference photo. Powers "recent scans" history and
+/// restoring the current inventory. Mirrors the backend `FridgeScan`.
+class ScanInventory {
+  const ScanInventory({
+    required this.id,
+    required this.ingredientIds,
+    required this.summary,
+    required this.createdAt,
+    this.imageUrl,
+  });
+
+  final String id;
+  final List<String> ingredientIds;
+
+  /// Human-readable label, e.g. "Gin, Lime, Tonic".
+  final String summary;
+  final String? imageUrl;
+  final DateTime createdAt;
+
+  factory ScanInventory.fromJson(Map<String, dynamic> json) {
+    return ScanInventory(
+      id: json['id']?.toString() ?? '',
+      ingredientIds: (json['ingredientIds'] as List? ?? const [])
+          .map((e) => e.toString())
+          .toList(),
+      summary: json['summary']?.toString() ?? '',
+      imageUrl: (json['imageUrl']?.toString().isNotEmpty ?? false)
+          ? json['imageUrl'].toString()
+          : null,
+      createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? '') ??
+          DateTime.now(),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'ingredientIds': ingredientIds,
+        'summary': summary,
+        if (imageUrl != null) 'imageUrl': imageUrl,
+        'createdAt': createdAt.toIso8601String(),
+      };
+
+  /// Builds a comma-joined summary from a list of ingredient display names.
+  static String summarize(Iterable<String> names) => names.join(', ');
 }
 
 /// Generic API error matching the `Error` schema.

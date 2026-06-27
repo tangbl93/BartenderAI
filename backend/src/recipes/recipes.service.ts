@@ -1,6 +1,7 @@
 import {
   Inject,
   Injectable,
+  Logger,
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
@@ -10,22 +11,25 @@ import { IngredientEntity, RecipeEntity } from '../database/entities';
 import { normalizeLocale, resolveLocalized } from '../common/constants';
 import {
   GeneratedRecipe,
-  TEXT_PROVIDER,
-  TextProvider,
   TextProviderIngredient,
 } from '../ai/text-provider.interface';
+import { StubTextProvider } from '../ai/stub-text.provider';
+import { IllustrationService } from '../ai/illustration.service';
 import { I18nService } from '../i18n/i18n.service';
 import { RecipeDto, RecipeGenerateDto } from './dto/recipe.dto';
 
 @Injectable()
 export class RecipesService {
+  private readonly logger = new Logger(RecipesService.name);
+
   constructor(
     @InjectRepository(RecipeEntity)
     private readonly recipes: Repository<RecipeEntity>,
     @InjectRepository(IngredientEntity)
     private readonly ingredients: Repository<IngredientEntity>,
-    @Inject(TEXT_PROVIDER) private readonly textProvider: TextProvider,
+    private readonly textProvider: StubTextProvider,
     private readonly i18n: I18nService,
+    private readonly illustration: IllustrationService,
   ) {}
 
   async generate(
@@ -88,7 +92,27 @@ export class RecipesService {
         ownerId: ownerId ?? null,
       }),
     );
+    this.scheduleIllustration(entity);
     return this.toDto(entity);
+  }
+
+  /**
+   * Fire-and-forget flat illustration for a generated recipe. Writes only the
+   * imageUrl column when the provider returns; failures never block generation.
+   */
+  private scheduleIllustration(entity: RecipeEntity): void {
+    const ingredients = (entity.items || []).map((i) => i.name);
+    const prompt = this.illustration.recipePrompt(entity.name, ingredients);
+    void this.illustration
+      .generate(prompt, `recipe-${entity.id}`)
+      .then((url) => {
+        if (url) return this.recipes.update(entity.id, { imageUrl: url });
+      })
+      .catch((err) =>
+        this.logger.warn(
+          `Recipe ${entity.id} illustration failed: ${err?.message || err}`,
+        ),
+      );
   }
 
   /**
@@ -158,6 +182,7 @@ export class RecipesService {
       alcoholRange: e.alcoholRange,
       safetyNotes: e.safetyNotes,
       isExample: e.isExample,
+      imageUrl: e.imageUrl ?? null,
     };
   }
 }

@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,17 +10,26 @@ import { IngredientEntity, RecipeEntity } from '../database/entities';
 import {
   INGREDIENT_CATEGORIES,
   IngredientCategory,
+  normalizeLocale,
   resolveLocalized,
 } from '../common/constants';
-import { IngredientDto, IngredientViewDto } from './dto/ingredient.dto';
+import { IllustrationService } from '../ai/illustration.service';
+import {
+  IngredientDto,
+  IngredientViewDto,
+  PublicIngredientDto,
+} from './dto/ingredient.dto';
 
 @Injectable()
 export class IngredientsService {
+  private readonly logger = new Logger(IngredientsService.name);
+
   constructor(
     @InjectRepository(IngredientEntity)
     private readonly ingredients: Repository<IngredientEntity>,
     @InjectRepository(RecipeEntity)
     private readonly recipes: Repository<RecipeEntity>,
+    private readonly illustration: IllustrationService,
   ) {}
 
   private assertCategory(category: string): void {
@@ -34,7 +44,31 @@ export class IngredientsService {
       category: e.category,
       name: resolveLocalized(e.names, locale),
       enabled: e.enabled,
+      imageUrl: e.imageUrl ?? null,
     };
+  }
+
+  /**
+   * Fire-and-forget flat illustration generation. Writes only the imageUrl
+   * column when the provider returns; failures are swallowed so they never
+   * block ingredient creation.
+   */
+  private scheduleIllustration(entity: IngredientEntity): void {
+    const name =
+      resolveLocalized(entity.names, 'en') ||
+      resolveLocalized(entity.names, 'zh-CN');
+    if (!name) return;
+    const prompt = this.illustration.ingredientPrompt(name, entity.category);
+    void this.illustration
+      .generate(prompt, `ingredient-${entity.id}`)
+      .then((url) => {
+        if (url) return this.ingredients.update(entity.id, { imageUrl: url });
+      })
+      .catch((err) =>
+        this.logger.warn(
+          `Ingredient ${entity.id} illustration failed: ${err?.message || err}`,
+        ),
+      );
   }
 
   /** Public list: enabled only, localized name, optional category filter. */
@@ -59,16 +93,47 @@ export class IngredientsService {
     return rows.map((r) => this.toView(r, locale));
   }
 
-  async create(dto: IngredientDto): Promise<IngredientViewDto> {
+  async create(
+    dto: IngredientDto,
+    createdBy: string | null = null,
+  ): Promise<IngredientViewDto> {
     this.assertCategory(dto.category);
     const entity = await this.ingredients.save(
       this.ingredients.create({
         category: dto.category as IngredientCategory,
         names: dto.names,
         enabled: dto.enabled ?? true,
+        createdBy,
       }),
     );
+    this.scheduleIllustration(entity);
     return this.toView(entity, 'en');
+  }
+
+  /**
+   * User-contributed ingredient. Enabled + public immediately, attributed to
+   * the submitter, and given a flat illustration in the background.
+   */
+  async createPublic(
+    dto: PublicIngredientDto,
+    userId: string,
+  ): Promise<IngredientViewDto> {
+    this.assertCategory(dto.category);
+    const locale = normalizeLocale(dto.locale);
+    const name = dto.name.trim();
+    if (!name) {
+      throw new BadRequestException('材料名称不能为空');
+    }
+    const entity = await this.ingredients.save(
+      this.ingredients.create({
+        category: dto.category as IngredientCategory,
+        names: { [locale]: name },
+        enabled: true,
+        createdBy: userId,
+      }),
+    );
+    this.scheduleIllustration(entity);
+    return this.toView(entity, locale);
   }
 
   async update(id: string, dto: IngredientDto): Promise<IngredientViewDto> {

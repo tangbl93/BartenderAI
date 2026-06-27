@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/models/models.dart';
 import '../data/repositories/repositories.dart';
+import '../data/services/api_service.dart';
 import '../data/services/gaid_service.dart';
 
 /// Holds the authenticated [User] / token. Account creation is implicit:
@@ -12,10 +13,15 @@ import '../data/services/gaid_service.dart';
 /// fallback when GAID is unavailable) and silently registers/logs in — there
 /// is no login UI.
 class AuthController extends ChangeNotifier {
-  AuthController(this._auth, this._gaid);
+  AuthController(this._auth, this._gaid, {ApiService? apiService})
+      : _api = apiService;
 
   final AuthRepository _auth;
   final GaidService _gaid;
+
+  /// HTTP client the resolved token is pushed onto, so authenticated
+  /// endpoints (fridge scans, lab entries) send the `Authorization` header.
+  final ApiService? _api;
 
   User? _user;
   String? _token;
@@ -54,6 +60,8 @@ class AuthController extends ChangeNotifier {
       _user = result.user;
       _token = result.accessToken;
       _deviceId = deviceId;
+      // Push the token onto the HTTP client so authenticated endpoints carry it.
+      _api?.accessToken = result.accessToken;
       notifyListeners();
       return true;
     } catch (_) {

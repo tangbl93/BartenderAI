@@ -6,7 +6,7 @@ import '../models/models.dart';
 
 /// Thin HTTP client around the Home Bartender AI backend contract.
 ///
-/// Used only when [AppConfig.useMock] is `false`. Endpoints mirror
+/// Endpoints mirror
 /// docs/api/openapi.yaml. The bearer token is injected per-request.
 class ApiService {
   ApiService({required this.baseUrl, http.Client? client})
@@ -106,6 +106,22 @@ class ApiService {
         .toList();
   }
 
+  /// POST /ingredients — user-contributed material (public immediately).
+  Future<Ingredient> createIngredient(
+      IngredientCategory category, String name, String locale) async {
+    final res = await _client.post(
+      _uri('/ingredients'),
+      headers: _headers(),
+      body: jsonEncode({
+        'category': category.wire,
+        'name': name,
+        'locale': locale,
+      }),
+    );
+    if (res.statusCode != 201) _throw(res);
+    return Ingredient.fromJson(jsonDecode(res.body) as Map<String, dynamic>);
+  }
+
   // ---------------- RECIPES ----------------
   Future<Recipe> generateRecipe(List<String> ingredientIds, String locale) async {
     final res = await _client.post(
@@ -188,5 +204,39 @@ class ApiService {
     );
     if (res.statusCode != 201) _throw(res);
     return LabEntry.fromJson(jsonDecode(res.body) as Map<String, dynamic>);
+  }
+
+  // ---------------- FRIDGE ----------------
+  Future<ScanInventory> saveFridgeScan(List<String> ingredientIds,
+      {required String summary, String? imageUrl}) async {
+    final res = await _client.post(
+      _uri('/fridge/scans'),
+      headers: _headers(),
+      body: jsonEncode({
+        'ingredientIds': ingredientIds,
+        'summary': summary,
+        'imageUrl': ?imageUrl,
+      }),
+    );
+    if (res.statusCode != 201) _throw(res);
+    return ScanInventory.fromJson(jsonDecode(res.body) as Map<String, dynamic>);
+  }
+
+  Future<List<ScanInventory>> fridgeScans() async {
+    final res = await _client.get(_uri('/fridge/scans'), headers: _headers());
+    if (res.statusCode != 200) _throw(res);
+    return (jsonDecode(res.body) as List)
+        .map((e) => ScanInventory.fromJson((e as Map).cast<String, dynamic>()))
+        .toList();
+  }
+
+  Future<ScanInventory?> latestFridgeScan() async {
+    final res =
+        await _client.get(_uri('/fridge/scans/latest'), headers: _headers());
+    if (res.statusCode != 200) _throw(res);
+    if (res.body.trim().isEmpty || res.body.trim() == 'null') return null;
+    final decoded = jsonDecode(res.body);
+    if (decoded == null) return null;
+    return ScanInventory.fromJson((decoded as Map).cast<String, dynamic>());
   }
 }

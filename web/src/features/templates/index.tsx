@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Pencil, Trash2, Upload } from 'lucide-react'
+import { Plus, Pencil, Trash2, Upload, Sparkles } from 'lucide-react'
 import { ConfigDrawer } from '@/components/config-drawer'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
@@ -40,6 +40,7 @@ import {
 import {
   useCreateTemplate,
   useDeleteTemplate,
+  useGenerateTemplateImage,
   useTemplates,
   useUpdateTemplate,
   useUploadReferenceImage,
@@ -77,6 +78,7 @@ export function Templates() {
   const updateMut = useUpdateTemplate()
   const deleteMut = useDeleteTemplate()
   const uploadMut = useUploadReferenceImage()
+  const generateMut = useGenerateTemplateImage()
 
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [current, setCurrent] = useState<StyleTemplate | null>(null)
@@ -168,9 +170,8 @@ export function Templates() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className='w-16'>插图</TableHead>
                 <TableHead>名称</TableHead>
-                <TableHead>尺寸</TableHead>
-                <TableHead>渲染模式</TableHead>
                 <TableHead>版本</TableHead>
                 <TableHead>状态</TableHead>
                 <TableHead className='text-end'>操作</TableHead>
@@ -180,7 +181,7 @@ export function Templates() {
               {isLoading ? (
                 <TableRow>
                   <TableCell
-                    colSpan={6}
+                    colSpan={5}
                     className='h-24 text-center text-muted-foreground'
                   >
                     加载中...
@@ -189,7 +190,7 @@ export function Templates() {
               ) : items.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={6}
+                    colSpan={5}
                     className='h-24 text-center text-muted-foreground'
                   >
                     暂无数据
@@ -198,16 +199,30 @@ export function Templates() {
               ) : (
                 items.map((t) => (
                   <TableRow key={t.id}>
+                    <TableCell>
+                      {t.referenceImageUrl ? (
+                        <img
+                          src={t.referenceImageUrl}
+                          alt={t.name}
+                          className='size-10 rounded-md object-cover'
+                          loading='lazy'
+                        />
+                      ) : (
+                        <Button
+                          variant='outline'
+                          size='sm'
+                          disabled={generateMut.isPending}
+                          onClick={() => generateMut.mutate(t.id)}
+                        >
+                          <Sparkles className='size-4' />
+                          {generateMut.isPending &&
+                          generateMut.variables === t.id
+                            ? '生成中'
+                            : '生成'}
+                        </Button>
+                      )}
+                    </TableCell>
                     <TableCell className='font-medium'>{t.name}</TableCell>
-                    <TableCell>
-                      <Badge variant='outline'>
-                        {DIMENSION_LABELS[t.dimension] ?? t.dimension}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {RENDER_MODE_LABELS[t.textRenderMode] ??
-                        t.textRenderMode}
-                    </TableCell>
                     <TableCell className='text-muted-foreground'>
                       v{t.version}
                     </TableCell>

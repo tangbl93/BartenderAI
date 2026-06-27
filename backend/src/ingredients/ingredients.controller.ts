@@ -12,10 +12,14 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { IngredientsService } from './ingredients.service';
-import { IngredientDto } from './dto/ingredient.dto';
+import { IngredientDto, PublicIngredientDto } from './dto/ingredient.dto';
 import { Public } from '../common/decorators/public.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import {
+  AuthUser,
+  CurrentUser,
+} from '../common/decorators/current-user.decorator';
 
 @ApiTags('ingredients')
 @Controller()
@@ -32,6 +36,18 @@ export class IngredientsController {
     @Query('category') category?: string,
   ) {
     return this.service.listPublic(locale, category);
+  }
+
+  @ApiBearerAuth()
+  @Post('ingredients')
+  @ApiOperation({
+    summary: '用户新增材料（即时生效、直接公开，配图后台生成）',
+  })
+  createPublic(
+    @Body() dto: PublicIngredientDto,
+    @CurrentUser() user: AuthUser,
+  ) {
+    return this.service.createPublic(dto, user.id);
   }
 
   @ApiBearerAuth()

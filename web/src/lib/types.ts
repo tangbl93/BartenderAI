@@ -30,6 +30,8 @@ export interface Ingredient {
   name: string
   names: LocaleNames
   enabled: boolean
+  /** Flat-illustration artwork URL (generated async; null until ready). */
+  imageUrl?: string | null
 }
 
 export interface LayoutConfig {

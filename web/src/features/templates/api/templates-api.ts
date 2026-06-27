@@ -92,4 +92,21 @@ export function useUploadReferenceImage() {
   })
 }
 
+export function useGenerateTemplateImage() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await api.post<{ referenceImageUrl: string }>(
+        `/admin/templates/${id}/generate-image`
+      )
+      return res.data
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['templates'] })
+      toast.success('参考图已生成')
+    },
+    onError: () => toast.error('生成失败，请重试'),
+  })
+}
+
 export type { StyleTemplate }

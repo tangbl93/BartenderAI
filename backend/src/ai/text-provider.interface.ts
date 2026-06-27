@@ -27,7 +27,7 @@ export interface GeneratedToolSubstitution {
   homeAlternative: string;
 }
 
-/** Structured recipe JSON returned by any text provider. */
+/** Structured recipe JSON returned by the stub recipe generator. */
 export interface GeneratedRecipe {
   name: string;
   tagline: string;
@@ -37,9 +37,3 @@ export interface GeneratedRecipe {
   alcoholRange: string;
   safetyNotes: string[];
 }
-
-export interface TextProvider {
-  generateRecipe(req: TextGenerationRequest): Promise<GeneratedRecipe>;
-}
-
-export const TEXT_PROVIDER = Symbol('TEXT_PROVIDER');

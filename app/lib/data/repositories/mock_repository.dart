@@ -3,8 +3,7 @@ import 'dart:async';
 import '../models/models.dart';
 import 'repositories.dart';
 
-/// In-memory implementation of every repository so the app runs end-to-end
-/// without a backend. Selected when `AppConfig.useMock == true`.
+/// In-memory implementation of every repository — a test double used by widget/unit tests, not the running app.
 ///
 /// Ingredient display names, recipe text, examples and tagline are localized
 /// per the requested locale (en / zh-CN / zh-TW / ja / ko) with English
@@ -15,10 +14,12 @@ class MockRepository
         IngredientRepository,
         RecipeRepository,
         PosterRepository,
-        LabRepository {
+        LabRepository,
+        FridgeInventoryRepository {
   MockRepository();
 
   final List<LabEntry> _labEntries = [];
+  final List<ScanInventory> _scans = [];
   int _idSeq = 0;
 
   String _nextId(String prefix) => '$prefix-${++_idSeq}';
@@ -99,13 +100,35 @@ class MockRepository
   }
 
   // ---------------- INGREDIENTS ----------------
+  /// User-contributed ingredients added at runtime (mock has no persistence).
+  final List<Ingredient> _customIngredients = [];
+
   @override
   Future<List<Ingredient>> list(String locale,
       {IngredientCategory? category}) async {
     await _delay();
-    final all = _seedIngredients(locale);
+    final all = [..._seedIngredients(locale), ..._customIngredients];
     if (category == null) return all;
     return all.where((i) => i.category == category).toList();
+  }
+
+  @override
+  Future<Ingredient> add(
+      IngredientCategory category, String name, String locale) async {
+    await _delay();
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) {
+      throw ApiException(400, 'Name is required', 'MISSING_FIELD');
+    }
+    final ingredient = Ingredient(
+      id: _nextId('ing-custom'),
+      category: category,
+      name: trimmed,
+      enabled: true,
+      // Mock has no image provider; leave null so the placeholder renders.
+    );
+    _customIngredients.add(ingredient);
+    return ingredient;
   }
 
   List<Ingredient> _seedIngredients(String locale) {
@@ -215,6 +238,9 @@ class MockRepository
               category: d.$2,
               name: _pick(d.$3, locale),
               enabled: true,
+              // ponytail: placeholder illustration mirrors the backend's
+              // async-generated artwork so chips render an image, not a glyph.
+              imageUrl: 'https://picsum.photos/seed/${d.$1}/100/100',
             ))
         .toList();
   }
@@ -403,6 +429,46 @@ class MockRepository
   // ---------------- POSTERS ----------------
   final Map<String, PosterJob> _jobs = {};
 
+  /// Backend-configured style templates. The dimension/textRenderMode fields
+  /// are vestigial here (the backend drives image generation); the UI only
+  /// needs id + name.
+  @override
+  Future<List<StyleTemplate>> templates() async {
+    await _delay();
+    return const [
+      StyleTemplate(
+        id: 'tpl-neon',
+        name: 'Neon Pulse',
+        dimension: PosterDimension.homeCloseup,
+        prompt: '',
+        layout: null,
+        textRenderMode: 'model',
+        enabled: true,
+        version: 1,
+      ),
+      StyleTemplate(
+        id: 'tpl-haze',
+        name: 'Midnight Haze',
+        dimension: PosterDimension.homeCloseup,
+        prompt: '',
+        layout: null,
+        textRenderMode: 'model',
+        enabled: true,
+        version: 1,
+      ),
+      StyleTemplate(
+        id: 'tpl-pop',
+        name: 'Citrus Pop',
+        dimension: PosterDimension.homeCloseup,
+        prompt: '',
+        layout: null,
+        textRenderMode: 'model',
+        enabled: true,
+        version: 1,
+      ),
+    ];
+  }
+
   @override
   Future<PosterJob> createJob(String recipeId, String locale,
       {List<String>? templateIds}) async {
@@ -538,5 +604,41 @@ class MockRepository
     );
     _labEntries.add(entry);
     return entry;
+  }
+
+  // ---------------- FRIDGE ----------------
+  @override
+  Future<ScanInventory> save(List<String> ingredientIds,
+      {required String summary, String? imageUrl}) async {
+    await _delay();
+    if (ingredientIds.isEmpty) {
+      throw ApiException(400, 'Ingredients required', 'MISSING_FIELD');
+    }
+    final scan = ScanInventory(
+      id: _nextId('scan'),
+      ingredientIds: List<String>.unmodifiable(ingredientIds),
+      summary: summary.isNotEmpty ? summary : ingredientIds.join(', '),
+      imageUrl: imageUrl,
+      createdAt: DateTime.now(),
+    );
+    _scans.add(scan);
+    return scan;
+  }
+
+  @override
+  Future<List<ScanInventory>> recent() async {
+    await _delay();
+    final list = [..._scans]
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return list.take(10).toList();
+  }
+
+  @override
+  Future<ScanInventory?> latest() async {
+    await _delay();
+    if (_scans.isEmpty) return null;
+    final sorted = [..._scans]
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return sorted.first;
   }
 }

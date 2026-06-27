@@ -1,36 +1,22 @@
 import { Global, Logger, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { TEXT_PROVIDER } from './text-provider.interface';
 import { IMAGE_PROVIDER } from './image-provider.interface';
 import { StubTextProvider } from './stub-text.provider';
 import { StubImageProvider } from './stub-image.provider';
 import { GptImage2Provider } from './gpt-image2.provider';
-import { I18nService } from '../i18n/i18n.service';
+import { IllustrationService } from './illustration.service';
+import { StorageModule } from '../storage/storage.module';
 
 const logger = new Logger('AiModule');
 
 @Global()
 @Module({
+  imports: [StorageModule],
   providers: [
     StubTextProvider,
     StubImageProvider,
     GptImage2Provider,
-    {
-      // Text provider selection. Only the stub ships in v1; "openai-compatible"
-      // can be wired later. Default to stub when no key configured.
-      provide: TEXT_PROVIDER,
-      useFactory: (config: ConfigService, i18n: I18nService) => {
-        const provider = config.get<string>('text.provider');
-        const key = config.get<string>('text.apiKey');
-        if (provider === 'openai-compatible' && key) {
-          logger.warn(
-            'TEXT_PROVIDER=openai-compatible requested but not implemented; using stub.',
-          );
-        }
-        return new StubTextProvider(i18n);
-      },
-      inject: [ConfigService, I18nService],
-    },
+    IllustrationService,
     {
       // Image provider selection: gpt-image-2 only when a key is present,
       // otherwise fall back to the deterministic stub.
@@ -48,6 +34,6 @@ const logger = new Logger('AiModule');
       inject: [ConfigService],
     },
   ],
-  exports: [TEXT_PROVIDER, IMAGE_PROVIDER],
+  exports: [StubTextProvider, IMAGE_PROVIDER, IllustrationService],
 })
 export class AiModule {}

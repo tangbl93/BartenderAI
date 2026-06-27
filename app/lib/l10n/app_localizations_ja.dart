@@ -355,6 +355,18 @@ class AppLocalizationsJa extends AppLocalizations {
   String get craftMake => '作成';
 
   @override
+  String get craftTemplatesTitle => '同じものを作る';
+
+  @override
+  String get craftDiyTitle => '材料を選ぶ';
+
+  @override
+  String get craftAddIngredient => '材料を追加';
+
+  @override
+  String get craftAddIngredientHint => '材料名';
+
+  @override
   String get craftGeneratePoster => 'シェア画像を生成';
 
   @override
@@ -373,6 +385,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get craftSaved => 'マイ作品に保存しました';
 
   @override
+  String get craftAiGenerated => 'AI マスターピース生成完了';
+
+  @override
   String get profileUserId => 'ユーザー ID';
 
   @override
@@ -386,4 +401,42 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get profileCopied => 'コピーしました';
+
+  @override
+  String get craftScannerTitle => '冷蔵庫スキャン';
+
+  @override
+  String get craftScanHint => '冷蔵庫やバーに向けてタップしてスキャン';
+
+  @override
+  String get craftScanCta => '材料をスキャン';
+
+  @override
+  String get craftScanning => 'スキャン中…';
+
+  @override
+  String craftScanDetected(int count) {
+    return '$count種類の材料を検出';
+  }
+
+  @override
+  String get craftSaveInventory => '在庫を保存';
+
+  @override
+  String get craftRescan => '再スキャン';
+
+  @override
+  String get craftScanContinue => '続ける';
+
+  @override
+  String get craftManualSelect => '手動で選ぶ';
+
+  @override
+  String get craftInventorySaved => '在庫を保存しました';
+
+  @override
+  String get craftRecentScans => '最近のスキャン';
+
+  @override
+  String get homeFeatured => 'おすすめ';
 }

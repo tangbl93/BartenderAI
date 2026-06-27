@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'data/config/app_config.dart';
 import 'data/repositories/repositories.dart';
 import 'data/repositories/repository_factory.dart';
+import 'data/services/api_service.dart';
 import 'data/services/gaid_service.dart';
 import 'data/services/image_save_service.dart';
 import 'l10n/app_localizations.dart';
@@ -19,7 +20,7 @@ import 'ui/theme/app_theme.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final config = AppConfig.fromEnvironment();
-  final repos = buildRepositories(config);
+  final bundle = buildRepositories(config);
 
   final localeController = LocaleController();
   final onboardingController = OnboardingController();
@@ -27,7 +28,8 @@ Future<void> main() async {
 
   runApp(HomeBartenderApp(
     config: config,
-    repositories: repos,
+    repositories: bundle.repositories,
+    apiService: bundle.api,
     localeController: localeController,
     onboardingController: onboardingController,
   ));
@@ -38,6 +40,7 @@ class HomeBartenderApp extends StatelessWidget {
     super.key,
     required this.config,
     required this.repositories,
+    required this.apiService,
     required this.localeController,
     required this.onboardingController,
     this.imageSaveService = const NoopImageSaveService(),
@@ -46,6 +49,7 @@ class HomeBartenderApp extends StatelessWidget {
 
   final AppConfig config;
   final Repositories repositories;
+  final ApiService apiService;
   final LocaleController localeController;
   final OnboardingController onboardingController;
   final ImageSaveService imageSaveService;
@@ -63,7 +67,8 @@ class HomeBartenderApp extends StatelessWidget {
         ChangeNotifierProvider<OnboardingController>.value(
             value: onboardingController),
         ChangeNotifierProvider<AuthController>(
-          create: (_) => AuthController(repositories.auth, gaidService),
+          create: (_) => AuthController(repositories.auth, gaidService,
+              apiService: apiService),
         ),
       ],
       child: Consumer<LocaleController>(
