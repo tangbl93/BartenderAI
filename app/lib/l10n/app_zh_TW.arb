@@ -119,6 +119,7 @@
   "craftDiyTitle": "自選材料",
   "craftAddIngredient": "新增材料",
   "craftAddIngredientHint": "材料名稱",
+  "craftShareTemplate": "分享模板",
   "craftGeneratePoster": "生成分享圖",
   "craftConfirmTitle": "確認儲存",
   "craftAddPhotos": "新增成品照",
@@ -142,5 +143,7 @@
   "craftManualSelect": "直接選材料",
   "craftInventorySaved": "庫存已儲存",
   "craftRecentScans": "最近掃描",
-  "homeFeatured": "精選"
+  "homeFeatured": "精選",
+  "homeHeroCta": "今夜，調一杯屬於你的雞尾酒",
+  "featuredViewAll": "全部"
 }

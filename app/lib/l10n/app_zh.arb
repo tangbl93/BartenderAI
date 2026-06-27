@@ -119,6 +119,7 @@
   "craftDiyTitle": "自选材料",
   "craftAddIngredient": "添加材料",
   "craftAddIngredientHint": "材料名称",
+  "craftShareTemplate": "分享模板",
   "craftGeneratePoster": "生成分享图",
   "craftConfirmTitle": "确认保存",
   "craftAddPhotos": "添加成品照",
@@ -142,5 +143,7 @@
   "craftManualSelect": "直接选材料",
   "craftInventorySaved": "库存已保存",
   "craftRecentScans": "最近扫描",
-  "homeFeatured": "精选"
+  "homeFeatured": "精选",
+  "homeHeroCta": "今夜，调一杯属于你的鸡尾酒",
+  "featuredViewAll": "全部"
 }

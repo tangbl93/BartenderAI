@@ -7,9 +7,12 @@ import '../../../data/models/models.dart';
 import '../../../data/repositories/repositories.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../logic/locale_controller.dart';
+import '../../backend_image.dart';
 import '../../theme/app_theme.dart';
 import '../craft/craft_screen.dart';
 import '../detail/detail_screen.dart';
+import '../detail/recipe_detail_screen.dart';
+import '../featured/featured_screen.dart';
 import '../profile/profile_screen.dart';
 
 /// Single-page home: featured system presets (tap to craft) plus the user's
@@ -24,6 +27,10 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late Future<List<LabEntry>> _future;
   late Future<List<Recipe>> _featured;
+
+  /// Whether the creations gallery is empty — drives the FAB vs in-place
+  /// Craft button swap (FAB only when there's data to scroll past).
+  bool _isEmpty = true;
 
   /// Last fetched featured presets — shown immediately on reload (cache-first),
   /// then refreshed in the background. Null until the first backend read lands.
@@ -40,7 +47,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _reload() {
     final repos = context.read<Repositories>();
-    _future = repos.lab.entries();
+    final entries = repos.lab.entries();
+    entries.then((list) {
+      if (mounted) setState(() => _isEmpty = list.isEmpty);
+    });
+    _future = entries;
     // Cache-first: serve the last results instantly while we refetch.
     final cache = _featuredCache;
     _featured = cache != null
@@ -65,10 +76,19 @@ class _HomeScreenState extends State<HomeScreen> {
     if (created == true && mounted) setState(_reload);
   }
 
-  /// Tap a featured preset → jump straight into the craft flow on that recipe.
-  Future<void> _craftPreset(Recipe recipe) async {
+  /// Tap a featured preset → open its detail page (cover + ingredients +
+  /// steps); crafting is launched from there.
+  Future<void> _openFeatured(Recipe recipe) async {
     final created = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(builder: (_) => CraftScreen(presetRecipe: recipe)),
+      MaterialPageRoute(builder: (_) => RecipeDetailScreen(recipe: recipe)),
+    );
+    if (created == true && mounted) setState(_reload);
+  }
+
+  /// "View all" → the full featured grid (2-per-row) page.
+  Future<void> _openFeaturedGrid() async {
+    final created = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (_) => const FeaturedScreen()),
     );
     if (created == true && mounted) setState(_reload);
   }
@@ -92,12 +112,16 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        key: const Key('btn_craft'),
-        onPressed: _craft,
-        icon: const Icon(Icons.add),
-        label: Text(t.craftMake),
-      ),
+      // FAB only when there's data to scroll past; the empty state carries its
+      // own Craft button instead.
+      floatingActionButton: _isEmpty
+          ? null
+          : FloatingActionButton.extended(
+              key: const Key('btn_craft'),
+              onPressed: _craft,
+              icon: const Icon(Icons.add),
+              label: Text(t.craftMake),
+            ),
       body: _body(context, t),
     );
   }
@@ -108,7 +132,13 @@ class _HomeScreenState extends State<HomeScreen> {
       child: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
         children: [
-          _FeaturedPosters(future: _featured, onTap: _craftPreset),
+          _Hero(onTap: _craft),
+          const SizedBox(height: 20),
+          _FeaturedPosters(
+            future: _featured,
+            onTap: _openFeatured,
+            onViewAll: _openFeaturedGrid,
+          ),
           _SectionHeader(t.homeTitle),
           const SizedBox(height: 12),
           _gallery(context, t),
@@ -131,7 +161,9 @@ class _HomeScreenState extends State<HomeScreen> {
           return Center(child: Text(t.commonError));
         }
         final entries = snapshot.data ?? [];
-        if (entries.isEmpty) return _EmptyState(t.homeEmpty);
+        if (entries.isEmpty) {
+          return _EmptyState(t.homeEmpty, onCraft: _craft);
+        }
         return GridView.count(
           crossAxisCount: 2,
           shrinkWrap: true,
@@ -152,12 +184,81 @@ class _HomeScreenState extends State<HomeScreen> {
       '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 }
 
+/// Top-of-page hero banner: a dark, neon cocktail photo with a call-to-action
+/// gradient. Tapping it opens the craft flow.
+class _Hero extends StatelessWidget {
+  const _Hero({required this.onTap});
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return GestureDetector(
+      onTap: onTap,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: AspectRatio(
+          aspectRatio: 16 / 9,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              Image.asset(
+                'assets/hero_cocktail.png',
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => ColoredBox(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  child: const Center(child: Icon(Icons.local_bar, size: 48)),
+                ),
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  padding: const EdgeInsets.fromLTRB(16, 28, 16, 14),
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Colors.transparent, Colors.black87],
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          t.homeHeroCta,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// Horizontal carousel of system preset cocktails. Tapping a card opens the
 /// craft flow directly on that recipe. Renders nothing when empty.
 class _FeaturedPosters extends StatelessWidget {
-  const _FeaturedPosters({required this.future, required this.onTap});
+  const _FeaturedPosters({
+    required this.future,
+    required this.onTap,
+    required this.onViewAll,
+  });
   final Future<List<Recipe>> future;
   final void Function(Recipe) onTap;
+  final VoidCallback onViewAll;
 
   @override
   Widget build(BuildContext context) {
@@ -170,7 +271,22 @@ class _FeaturedPosters extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _SectionHeader(t.homeFeatured),
+            Row(
+              children: [
+                Expanded(child: _SectionHeader(t.homeFeatured)),
+                TextButton(
+                  key: const Key('btn_featured_all'),
+                  onPressed: onViewAll,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(t.featuredViewAll),
+                      const Icon(Icons.chevron_right, size: 18),
+                    ],
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 8),
             SizedBox(
               height: 150,
@@ -197,7 +313,6 @@ class _FeaturedCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fallback = Theme.of(context).colorScheme.surfaceContainerHighest;
     return SizedBox(
       width: 200,
       child: Card(
@@ -208,14 +323,7 @@ class _FeaturedCard extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              Image.network(
-                (recipe.imageUrl != null && recipe.imageUrl!.isNotEmpty)
-                    ? recipe.imageUrl!
-                    : 'https://picsum.photos/seed/${recipe.id}/400/300',
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) =>
-                    ColoredBox(color: fallback, child: const Icon(Icons.local_bar)),
-              ),
+              BackendImage(url: recipe.imageUrl),
               Positioned(
                 left: 0,
                 right: 0,
@@ -298,12 +406,20 @@ class _CreationCard extends StatelessWidget {
               ),
             ),
           ),
-        ],
-      ),
-    );
+          ],
+        ), // Stack
+      ), // Card
+    ); // GestureDetector
   }
 
   Widget _image() {
+    // Still generating on the backend — show a live placeholder.
+    if (entry.isGenerating) {
+      return const ColoredBox(
+        color: AppTheme.surface2,
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
     // Prefer the AI-composited poster (the "merged image"); fall back to any
     // user-uploaded photo.
     final url = entry.posterImageUrl.isNotEmpty
@@ -363,11 +479,13 @@ class _SectionHeader extends StatelessWidget {
 }
 
 class _EmptyState extends StatelessWidget {
-  const _EmptyState(this.message);
+  const _EmptyState(this.message, {this.onCraft});
   final String message;
+  final VoidCallback? onCraft;
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 72),
       child: Column(
@@ -382,6 +500,15 @@ class _EmptyState extends StatelessWidget {
                 .bodyMedium
                 ?.copyWith(color: AppTheme.textDim),
           ),
+          if (onCraft != null) ...[
+            const SizedBox(height: 24),
+            FilledButton.icon(
+              key: const Key('btn_craft_empty'),
+              onPressed: onCraft,
+              icon: const Icon(Icons.auto_awesome),
+              label: Text(t.craftMake),
+            ),
+          ],
         ],
       ),
     );

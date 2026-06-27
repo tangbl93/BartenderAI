@@ -367,6 +367,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get craftAddIngredientHint => '材料名';
 
   @override
+  String get craftShareTemplate => 'シェアテンプレート';
+
+  @override
   String get craftGeneratePoster => 'シェア画像を生成';
 
   @override
@@ -439,4 +442,10 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get homeFeatured => 'おすすめ';
+
+  @override
+  String get homeHeroCta => '今夜、あなただけのカクテルを';
+
+  @override
+  String get featuredViewAll => 'すべて見る';
 }

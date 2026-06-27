@@ -45,15 +45,48 @@ export class IllustrationService {
   }
 
   /**
+   * Prompt for a featured recipe's pre-rendered STEP image (Chinese, shared
+   * across locales). Rendered in the hand-drawn cartoon recipe-card style of
+   * the reference template (i2i style anchor), with the cocktail's Chinese
+   * title, materials and steps as legible text.
+   */
+  featuredRecipePrompt(
+    name: string,
+    items: { name: string; amount: string }[],
+    steps: string[],
+  ): string {
+    const materials = items.map((i) => `${i.name} ${i.amount}`).join('、');
+    const stepText = steps
+      .slice(0, 5)
+      .map((s, i) => `${i + 1}. ${s}`)
+      .join('  ');
+    return [
+      '严格保持参考图的手绘卡通调酒步骤教学长图风格：米白底、低饱和马卡龙配色、',
+      '深棕文字、可爱卡通插画与装饰图标、清新治愈氛围。模块化分栏：顶部大标题，',
+      '中部「准备材料」图文区，核心区编号步骤（每步：序号+动作插画+中文说明），',
+      '底部小贴士。务必把下面的中文文字清晰、正确地渲染到图上，替换参考图里的内容。',
+      `大标题（中文）：${name}`,
+      `准备材料（中文）：${materials}`,
+      `制作步骤（中文，逐条渲染）：${stepText}`,
+    ].join(' ');
+  }
+
+  /**
    * Generate an illustration and return a persisted public URL, or `null` on
    * any failure. Never throws — safe to call without a try/catch.
    */
-  async generate(prompt: string, seed: string): Promise<string | null> {
+  async generate(
+    prompt: string,
+    seed: string,
+    size = '1024x1024',
+    referenceImage?: string,
+  ): Promise<string | null> {
     try {
       const { imageUrl } = await this.imageProvider.generateImage({
         prompt,
-        size: '1024x1024',
+        size,
         seed,
+        referenceImage,
       });
       if (!imageUrl) return null;
       return await this.persist(imageUrl, seed);

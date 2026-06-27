@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Pencil, Trash2, Upload, Sparkles } from 'lucide-react'
+import { Plus, Pencil, Trash2, Upload, Sparkles, Wine } from 'lucide-react'
 import { ConfigDrawer } from '@/components/config-drawer'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
@@ -37,6 +37,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   useCreateTemplate,
   useDeleteTemplate,
@@ -45,7 +46,8 @@ import {
   useUpdateTemplate,
   useUploadReferenceImage,
 } from './api/templates-api'
-import { type StyleTemplate } from '@/lib/types'
+import { useCuratedRecipes, useDeleteRecipe } from './api/curated-recipes-api'
+import { type Recipe, type StyleTemplate } from '@/lib/types'
 
 const DIMENSION_LABELS: Record<string, string> = {
   home_closeup: '家庭特写',
@@ -156,15 +158,22 @@ export function Templates() {
       </Header>
 
       <Main className='flex flex-1 flex-col gap-4 sm:gap-6'>
-        <div className='flex flex-wrap items-end justify-between gap-2'>
-          <div>
-            <h2 className='text-2xl font-bold tracking-tight'>模板管理</h2>
-            <p className='text-muted-foreground'>管理海报风格模板与参考图</p>
-          </div>
-          <Button onClick={openCreate}>
-            <Plus className='size-4' /> 新增模板
-          </Button>
-        </div>
+        <Tabs defaultValue='prompts'>
+          <TabsList>
+            <TabsTrigger value='prompts'>分享模板提示词</TabsTrigger>
+            <TabsTrigger value='curated'>精选调酒推荐</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value='prompts' className='flex flex-col gap-4'>
+            <div className='flex flex-wrap items-end justify-between gap-2'>
+              <div>
+                <h2 className='text-2xl font-bold tracking-tight'>分享模板提示词</h2>
+                <p className='text-muted-foreground'>管理海报风格模板与参考图</p>
+              </div>
+              <Button onClick={openCreate}>
+                <Plus className='size-4' /> 新增模板
+              </Button>
+            </div>
 
         <div className='overflow-hidden rounded-md border'>
           <Table>
@@ -256,6 +265,12 @@ export function Templates() {
             </TableBody>
           </Table>
         </div>
+          </TabsContent>
+
+          <TabsContent value='curated'>
+            <CuratedRecipes />
+          </TabsContent>
+        </Tabs>
       </Main>
 
       <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
@@ -413,6 +428,91 @@ export function Templates() {
         confirmText='删除'
         destructive
         handleConfirm={confirmDelete}
+      />
+    </>
+  )
+}
+
+/** 精选调酒推荐 — example recipes shown as cards (image + bottom title).
+ *  The image area is its own container so the empty-state icon centers in the
+ *  image space, not the whole card (the bottom title bar takes its own height). */
+function CuratedRecipes() {
+  const { data, isLoading } = useCuratedRecipes()
+  const deleteMut = useDeleteRecipe()
+  const [target, setTarget] = useState<Recipe | null>(null)
+  const items = data ?? []
+
+  return (
+    <>
+      <div className='flex flex-wrap items-end justify-between gap-2'>
+        <div>
+          <h2 className='text-2xl font-bold tracking-tight'>精选调酒推荐</h2>
+          <p className='text-muted-foreground'>管理首页/制作页的精选调酒卡片</p>
+        </div>
+      </div>
+
+      {isLoading ? (
+        <div className='h-24 text-center text-muted-foreground'>加载中...</div>
+      ) : items.length === 0 ? (
+        <div className='h-24 text-center text-muted-foreground'>暂无推荐</div>
+      ) : (
+        <div className='grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4'>
+          {items.map((r) => (
+            <div
+              key={r.id}
+              className='group overflow-hidden rounded-lg border bg-card'
+            >
+              {/* Image area — fixed aspect, separate from the title bar so the
+                  placeholder icon centers within the image space alone. */}
+              <div className='relative aspect-[4/3] bg-muted'>
+                {r.imageUrl ? (
+                  <img
+                    src={r.imageUrl}
+                    alt={r.name}
+                    className='size-full object-cover'
+                    loading='lazy'
+                  />
+                ) : (
+                  <div className='flex size-full items-center justify-center'>
+                    <Wine className='size-10 text-muted-foreground/50' />
+                  </div>
+                )}
+                <Button
+                  variant='secondary'
+                  size='icon'
+                  className='absolute right-1 top-1 size-7 opacity-0 transition group-hover:opacity-100'
+                  onClick={() => setTarget(r)}
+                >
+                  <Trash2 className='size-3.5' />
+                </Button>
+              </div>
+              {/* Bottom title bar — takes its own height, not the icon's space. */}
+              <div className='space-y-0.5 p-2'>
+                <p className='truncate text-sm font-medium'>{r.name}</p>
+                {r.tagline && (
+                  <p className='truncate text-xs text-muted-foreground'>
+                    {r.tagline}
+                  </p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <ConfirmDialog
+        open={!!target}
+        onOpenChange={(o) => !o && setTarget(null)}
+        title='删除推荐'
+        desc={`确定要将「${target?.name ?? ''}」移出精选推荐吗？`}
+        confirmText='删除'
+        destructive
+        handleConfirm={() => {
+          if (target) {
+            deleteMut.mutate(target.id)
+            setTarget(null)
+          }
+        }}
       />
     </>
   )

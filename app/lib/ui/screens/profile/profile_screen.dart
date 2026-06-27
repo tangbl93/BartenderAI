@@ -10,6 +10,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../data/config/app_config.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../logic/auth_controller.dart';
+import '../../../logic/locale_controller.dart';
 import '../../../logic/onboarding_controller.dart';
 import '../../theme/app_theme.dart';
 import '../legal/legal_screen.dart';
@@ -24,6 +25,64 @@ class ProfileScreen extends StatelessWidget {
       uri,
       mode: isWeb ? LaunchMode.inAppBrowserView : LaunchMode.platformDefault,
     );
+  }
+
+  void _showLanguagePicker(BuildContext context) {
+    final ctrl = context.read<LocaleController>();
+    final current = Localizations.localeOf(context);
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppTheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  AppLocalizations.of(ctx).commonLanguage,
+                  style: Theme.of(ctx)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(color: AppTheme.text),
+                ),
+              ),
+            ),
+            for (final locale in LocaleController.supported)
+              ListTile(
+                onTap: () {
+                  ctrl.setLocale(locale);
+                  Navigator.pop(ctx);
+                },
+                title: Text(
+                  _nativeName(locale),
+                  style: const TextStyle(color: AppTheme.text),
+                ),
+                trailing: locale == current
+                    ? const Icon(Symbols.check, color: AppTheme.neonCyan)
+                    : null,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  static String _nativeName(Locale l) {
+    if (l.languageCode == 'zh') {
+      return l.countryCode == 'TW' ? '繁體中文' : '简体中文';
+    }
+    return switch (l.languageCode) {
+      'en' => 'English',
+      'ja' => '日本語',
+      'ko' => '한국어',
+      _ => l.languageCode,
+    };
   }
 
   @override
@@ -79,7 +138,33 @@ class ProfileScreen extends StatelessWidget {
                             monoValue: userId,
                             trailing: _CopyButton(value: userId),
                           ),
-                          const _Divider(),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      _GlassPanel(
+                        children: [
+                          _SettingsRow(
+                            icon: Symbols.language,
+                            label: t.commonLanguage,
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  _nativeName(Localizations.localeOf(context)),
+                                  style: const TextStyle(
+                                    color: AppTheme.onSurfaceVariant,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                const Icon(
+                                  Symbols.chevron_right,
+                                  color: AppTheme.onSurfaceVariant,
+                                  size: 20,
+                                ),
+                              ],
+                            ),
+                            onTap: () => _showLanguagePicker(context),
+                          ),
                           _SettingsRow(
                             icon: Symbols.mail,
                             label: t.profileContactUs,
@@ -88,6 +173,19 @@ class ProfileScreen extends StatelessWidget {
                               'mailto:${config.contactEmail}',
                             ),
                           ),
+                          _SettingsRow(
+                            icon: Symbols.help,
+                            label: t.onboardingReplay,
+                            onTap: () {
+                              context.read<OnboardingController>().replay();
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      _GlassPanel(
+                        children: [
                           _SettingsRow(
                             icon: Symbols.policy,
                             label: t.profilePrivacy,
@@ -111,15 +209,6 @@ class ProfileScreen extends StatelessWidget {
                                 ),
                               ),
                             ),
-                          ),
-                          const _Divider(),
-                          _SettingsRow(
-                            icon: Symbols.help,
-                            label: t.onboardingReplay,
-                            onTap: () {
-                              context.read<OnboardingController>().replay();
-                              Navigator.of(context).pop();
-                            },
                           ),
                         ],
                       ),
@@ -150,7 +239,7 @@ class _AppHeader extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 20),
           height: 64,
           decoration: BoxDecoration(
-            color: const Color(0xFF12131a).withValues(alpha: 0.8),
+            color: AppTheme.bg.withValues(alpha: 0.85),
             border: Border(
               bottom: BorderSide(
                 color: Colors.white.withValues(alpha: 0.1),
@@ -169,11 +258,10 @@ class _AppHeader extends StatelessWidget {
               const SizedBox(width: 16),
               Text(
                 title,
-                style: GoogleFonts.chakraPetch(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.primarySoft,
-                ),
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge
+                    ?.copyWith(letterSpacing: 0, color: AppTheme.text),
               ),
               const Spacer(),
             ],
@@ -336,19 +424,5 @@ class _CopyButtonState extends State<_CopyButton> {
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) setState(() => _copied = false);
     });
-  }
-}
-
-// ── Divider ────────────────────────────────────────────────────
-
-class _Divider extends StatelessWidget {
-  const _Divider();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 1,
-      color: Colors.white.withValues(alpha: 0.05),
-    );
   }
 }

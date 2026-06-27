@@ -9,7 +9,7 @@ import {
   UserEntity,
 } from './entities';
 import { SEED_INGREDIENTS, SEED_TEMPLATES } from './seed-data';
-import { resolveLocalized } from '../common/constants';
+import { resolveLocalized, SUPPORTED_LOCALES } from '../common/constants';
 import { COCKTAIL_SIGNATURES } from '../ai/cocktail-signatures';
 
 /**
@@ -74,9 +74,10 @@ export async function seed(dataSource: DataSource): Promise<void> {
     );
   }
 
-  // ---- Example recipes (derived from COCKTAIL_SIGNATURES, en) ----
+  // ---- Example recipes (derived from COCKTAIL_SIGNATURES, all locales) ----
   // Idempotent: wipe prior seed examples (ownerId=null, isExample=true) and
-  // re-insert. User recipes (isExample:false) are never touched.
+  // re-insert ONE row per signature per supported locale (精选国际化). User
+  // recipes (isExample:false) are never touched.
   await recipes.delete({ isExample: true });
 
   const byEn = (en: string) =>
@@ -100,26 +101,28 @@ export async function seed(dataSource: DataSource): Promise<void> {
         optional: r.optional ?? false,
       }));
 
-    await recipes.save(
-      recipes.create({
-        name: sig.name.en,
-        tagline: sig.tagline.en,
-        locale: 'en',
-        items,
-        steps: sig.steps.en,
-        toolSubstitutions: [
-          { tool: 'jigger', homeAlternative: '1 jigger ≈ 1.5 tablespoons' },
-        ],
-        alcoholRange: sig.abv,
-        safetyNotes: [
-          'Please drink responsibly and in moderation.',
-          'Alcohol is prohibited for minors.',
-        ],
-        ingredientIds: items.map((it) => it.ingredientId),
-        isExample: true,
-        ownerId: null,
-      }),
-    );
+    for (const locale of SUPPORTED_LOCALES) {
+      await recipes.save(
+        recipes.create({
+          name: sig.name[locale],
+          tagline: sig.tagline[locale],
+          locale,
+          items,
+          steps: sig.steps[locale],
+          toolSubstitutions: [
+            { tool: 'jigger', homeAlternative: '1 jigger ≈ 1.5 tablespoons' },
+          ],
+          alcoholRange: sig.abv,
+          safetyNotes: [
+            'Please drink responsibly and in moderation.',
+            'Alcohol is prohibited for minors.',
+          ],
+          ingredientIds: items.map((it) => it.ingredientId),
+          isExample: true,
+          ownerId: null,
+        }),
+      );
+    }
   }
 }
 

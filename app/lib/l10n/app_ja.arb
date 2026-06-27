@@ -120,6 +120,7 @@
   "craftDiyTitle": "材料を選ぶ",
   "craftAddIngredient": "材料を追加",
   "craftAddIngredientHint": "材料名",
+  "craftShareTemplate": "シェアテンプレート",
   "craftGeneratePoster": "シェア画像を生成",
   "craftConfirmTitle": "保存確認",
   "craftAddPhotos": "完成写真を追加",
@@ -143,5 +144,7 @@
   "craftManualSelect": "手動で選ぶ",
   "craftInventorySaved": "在庫を保存しました",
   "craftRecentScans": "最近のスキャン",
-  "homeFeatured": "おすすめ"
+  "homeFeatured": "おすすめ",
+  "homeHeroCta": "今夜、あなただけのカクテルを",
+  "featuredViewAll": "すべて見る"
 }

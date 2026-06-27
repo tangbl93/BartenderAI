@@ -101,6 +101,16 @@ export interface ResultItem {
   imageUrl?: string | null
 }
 
+/** Example recipe (精选调酒推荐). */
+export interface Recipe {
+  id: string
+  name: string
+  tagline: string
+  locale: string
+  imageUrl?: string | null
+  isExample?: boolean
+}
+
 export interface ResultsPage {
   items: ResultItem[]
   total: number

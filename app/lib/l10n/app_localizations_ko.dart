@@ -368,6 +368,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get craftAddIngredientHint => '재료 이름';
 
   @override
+  String get craftShareTemplate => '공유 템플릿';
+
+  @override
   String get craftGeneratePoster => '공유 이미지 생성';
 
   @override
@@ -440,4 +443,10 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get homeFeatured => '추천';
+
+  @override
+  String get homeHeroCta => '오늘 밤, 당신만의 칵테일을';
+
+  @override
+  String get featuredViewAll => '전체 보기';
 }

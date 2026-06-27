@@ -806,6 +806,12 @@ abstract class AppLocalizations {
   /// **'Ingredient name'**
   String get craftAddIngredientHint;
 
+  /// No description provided for @craftShareTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'Share template'**
+  String get craftShareTemplate;
+
   /// No description provided for @craftGeneratePoster.
   ///
   /// In en, this message translates to:
@@ -949,6 +955,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Featured'**
   String get homeFeatured;
+
+  /// No description provided for @homeHeroCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Mix your perfect cocktail tonight'**
+  String get homeHeroCta;
+
+  /// No description provided for @featuredViewAll.
+  ///
+  /// In en, this message translates to:
+  /// **'View all'**
+  String get featuredViewAll;
 }
 
 class _AppLocalizationsDelegate

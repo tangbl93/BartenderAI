@@ -147,6 +147,7 @@
   "craftDiyTitle": "Pick your own",
   "craftAddIngredient": "Add ingredient",
   "craftAddIngredientHint": "Ingredient name",
+  "craftShareTemplate": "Share template",
   "craftGeneratePoster": "Generate share image",
   "craftConfirmTitle": "Save creation",
   "craftAddPhotos": "Add finished photos",
@@ -177,5 +178,7 @@
         "type": "int"
       }
     }
-  }
+  },
+  "homeHeroCta": "Mix your perfect cocktail tonight",
+  "featuredViewAll": "View all"
 }

@@ -367,6 +367,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get craftAddIngredientHint => '材料名称';
 
   @override
+  String get craftShareTemplate => '分享模板';
+
+  @override
   String get craftGeneratePoster => '生成分享图';
 
   @override
@@ -439,6 +442,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get homeFeatured => '精选';
+
+  @override
+  String get homeHeroCta => '今夜，调一杯属于你的鸡尾酒';
+
+  @override
+  String get featuredViewAll => '全部';
 }
 
 /// The translations for Chinese, as used in China (`zh_CN`).
@@ -804,6 +813,9 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get craftAddIngredientHint => '材料名称';
 
   @override
+  String get craftShareTemplate => '分享模板';
+
+  @override
   String get craftGeneratePoster => '生成分享图';
 
   @override
@@ -876,6 +888,12 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get homeFeatured => '精选';
+
+  @override
+  String get homeHeroCta => '今夜，调一杯属于你的鸡尾酒';
+
+  @override
+  String get featuredViewAll => '全部';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -1238,6 +1256,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get craftAddIngredientHint => '材料名稱';
 
   @override
+  String get craftShareTemplate => '分享模板';
+
+  @override
   String get craftGeneratePoster => '生成分享圖';
 
   @override
@@ -1265,7 +1286,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get profileContactUs => '聯絡我們';
 
   @override
-  String get profilePrivacy => '隱私權政策';
+  String get profilePrivacy => '隱私協議';
 
   @override
   String get profileTerms => '服務條款';
@@ -1310,4 +1331,10 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get homeFeatured => '精選';
+
+  @override
+  String get homeHeroCta => '今夜，調一杯屬於你的雞尾酒';
+
+  @override
+  String get featuredViewAll => '全部';
 }

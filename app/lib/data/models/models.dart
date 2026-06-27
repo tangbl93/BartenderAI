@@ -263,6 +263,7 @@ class Recipe {
     required this.safetyNotes,
     required this.isExample,
     this.imageUrl,
+    this.featuredImageUrl,
   });
 
   final String id;
@@ -279,6 +280,10 @@ class Recipe {
   /// Flat-illustration artwork URL. Null/empty until the backend finishes
   /// generating it asynchronously.
   final String? imageUrl;
+
+  /// Pre-rendered step/result image for featured recipes. When present, opening
+  /// the recipe shows this instantly instead of running a live poster job.
+  final String? featuredImageUrl;
 
   factory Recipe.fromJson(Map<String, dynamic> json) {
     return Recipe(
@@ -304,6 +309,10 @@ class Recipe {
       isExample: json['isExample'] as bool? ?? false,
       imageUrl: (json['imageUrl']?.toString().isNotEmpty ?? false)
           ? json['imageUrl'].toString()
+          : null,
+      featuredImageUrl: (json['featuredImageUrl']?.toString().isNotEmpty ??
+              false)
+          ? json['featuredImageUrl'].toString()
           : null,
     );
   }

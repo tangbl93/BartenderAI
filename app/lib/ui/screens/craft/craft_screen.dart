@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../../../data/models/models.dart';
 import '../../../data/repositories/repositories.dart';
+import '../../../data/services/image_save_service.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../logic/fridge_selection.dart';
 import '../../../logic/locale_controller.dart';
@@ -18,11 +19,15 @@ import '../../theme/app_theme.dart';
 /// selection → ② generate the recipe step image → ③ check in. Entry can also
 /// jump straight to ② when launched from a featured preset.
 class CraftScreen extends StatefulWidget {
-  const CraftScreen({super.key, this.presetRecipe});
+  const CraftScreen({super.key, this.presetRecipe, this.directCheckIn = false});
 
   /// When provided (e.g. tapped from a home "Featured" card), the flow skips
   /// the scan/select steps and opens directly on the recipe step image.
   final Recipe? presetRecipe;
+
+  /// When true (with a [presetRecipe]), skip the result display and land on the
+  /// check-in / share page once the step image is ready.
+  final bool directCheckIn;
 
   @override
   State<CraftScreen> createState() => _CraftScreenState();
@@ -46,10 +51,19 @@ class _CraftScreenState extends State<CraftScreen>
   String? _scanImagePath;
 
   Recipe? _recipe;
-  PosterJob? _job; // populated lazily when sharing
+  PosterJob? _stepJob; // result step: recipe step image
+  PosterJob? _shareJob; // check-in step: share image (built with a template)
+  StyleTemplate? _selectedTemplate; // chosen share template
+  late Future<List<StyleTemplate>> _templates;
+  // ponytail: client-side throttle — one new job per kind per 3 min; the
+  // backend rate-limits generation, so reuse the in-flight/recent job inside
+  // that window instead of firing a new createJob (which it would 429).
+  DateTime? _lastStepCreate;
+  DateTime? _lastShareCreate;
   bool _busy = false; // generating recipe
   bool _saving = false; // saving check-in
-  bool _sharing = false; // generating share image on demand
+  bool _stepBusy = false; // generating the recipe step image
+  bool _shareBusy = false; // generating the share image
   bool _savingInventory = false; // saving the scanned inventory
   List<String> _photos = []; // user finished-product photos (≤3)
 
@@ -58,7 +72,10 @@ class _CraftScreenState extends State<CraftScreen>
   late Future<List<Ingredient>> _ingredients;
   late Future<List<ScanInventory>> _recent;
 
-  static const int _maxPolls = 12;
+  // ponytail: poll indefinitely — generation can be slow; the loop bails out
+  // when the widget is disposed (user leaves the page). No retry cap.
+  static const Duration _pollInterval = Duration(milliseconds: 1500);
+  static const Duration _cooldown = Duration(minutes: 3);
   // Cap on how many ingredients a simulated scan "detects".
   static const int _maxDetections = 5;
 
@@ -90,10 +107,14 @@ class _CraftScreenState extends State<CraftScreen>
       if (mounted) setState(() => _allIngredients = list);
     });
     _recent = repos.fridge.recent();
+    _templates = repos.posters.templates();
     if (widget.presetRecipe != null) {
-      // Launched from a featured preset → jump straight to the step image.
+      // Launched from a featured preset → jump straight to the step image
+      // (or all the way to check-in when directCheckIn is set).
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _gotoResult(widget.presetRecipe!);
+        if (mounted) {
+          _gotoResult(widget.presetRecipe!, toCheckIn: widget.directCheckIn);
+        }
       });
     }
     // ponytail: no auto-restore on entry — the scan page starts clean every
@@ -114,9 +135,14 @@ class _CraftScreenState extends State<CraftScreen>
   String _localeString() =>
       LocaleController.toContentLocale(Localizations.localeOf(context));
 
-  /// First completed poster = the system share image (if generated).
-  Poster? get _sharePoster {
-    for (final p in _job?.posters ?? const <Poster>[]) {
+  /// First done poster of the recipe step image (result step).
+  Poster? get _stepPoster => _firstDone(_stepJob);
+
+  /// First done poster of the share image (check-in step).
+  Poster? get _sharePoster => _firstDone(_shareJob);
+
+  Poster? _firstDone(PosterJob? job) {
+    for (final p in job?.posters ?? const <Poster>[]) {
       if (p.status == PosterStatus.done && p.imageUrl.isNotEmpty) return p;
     }
     return null;
@@ -265,40 +291,178 @@ class _CraftScreenState extends State<CraftScreen>
     }
   }
 
-  /// Move to the result step and generate the AI step image immediately.
-  Future<void> _gotoResult(Recipe r) async {
+  /// Move to the result step. Featured recipes ship a pre-rendered step image,
+  /// so we display it instantly and skip the live poster job (省生产消耗).
+  /// User-generated recipes fall back to live generation.
+  Future<void> _gotoResult(Recipe r, {bool toCheckIn = false}) async {
     setState(() {
       _recipe = r;
       _step = _Step.result;
     });
-    await _ensurePoster();
+    final featured = r.featuredImageUrl;
+    if (featured != null && featured.isNotEmpty) {
+      setState(() {
+        _stepJob = PosterJob(
+          id: 'featured-${r.id}',
+          recipeId: r.id,
+          status: PosterJobStatus.done,
+          posters: [
+            Poster(
+              id: 'featured-${r.id}',
+              dimension: PosterDimension.homeCloseup,
+              templateId: '',
+              status: PosterStatus.done,
+              imageUrl: featured,
+              textSnapshot: const {},
+            ),
+          ],
+        );
+      });
+      if (toCheckIn && mounted) setState(() => _step = _Step.checkin);
+      return;
+    }
+    await _ensureStepImage();
+    if (toCheckIn && mounted) setState(() => _step = _Step.checkin);
   }
 
-  /// Generate the AI recipe step image (create job + poll until the first
-  /// poster is done). Cached in [_job] so the check-in step reuses it.
-  Future<Poster?> _ensurePoster() async {
-    if (_sharePoster != null) return _sharePoster;
+  /// Poll [job] until it settles (done/partial/failed) or the widget is
+  /// disposed. Bails out when the user leaves the page (mounted == false).
+  Future<PosterJob> _pollUntilSettled(PosterJob job, String kind) async {
+    final repos = context.read<Repositories>();
+    var poll = 0;
+    while (mounted) {
+      await Future.delayed(_pollInterval);
+      if (!mounted) break;
+      poll++;
+      job = await repos.posters.job(job.id);
+      debugPrint('[$kind] poll #$poll job=${job.id} status=${job.status} '
+          'posters=${job.posters.map((p) => '${p.status}:${p.imageUrl.isEmpty ? "no-url" : "url"}')}');
+      if (!mounted) break;
+      final settled = job.status == PosterJobStatus.done ||
+          job.status == PosterJobStatus.partial ||
+          job.status == PosterJobStatus.failed;
+      if (settled) break;
+    }
+    return job;
+  }
+
+  /// Generate the recipe STEP image (result step, no template).
+  Future<Poster?> _ensureStepImage() => _ensureImage(
+        kind: 'step',
+        templateIds: null,
+        existing: _stepJob,
+        lastCreate: _lastStepCreate,
+        posterOf: () => _stepPoster,
+        applyJob: (j) => _stepJob = j,
+        stamp: (t) => _lastStepCreate = t,
+        busy: (b) => _stepBusy = b,
+      );
+
+  /// Generate the SHARE image (check-in step, using the selected template).
+  Future<Poster?> _ensureShareImage() => _ensureImage(
+        kind: 'share',
+        templateIds:
+            _selectedTemplate == null ? null : [_selectedTemplate!.id],
+        existing: _shareJob,
+        lastCreate: _lastShareCreate,
+        posterOf: () => _sharePoster,
+        applyJob: (j) => _shareJob = j,
+        stamp: (t) => _lastShareCreate = t,
+        busy: (b) => _shareBusy = b,
+      );
+
+  /// Shared createJob-or-reuse + poll. The write-back callbacks target the
+  /// kind-specific fields (Dart has no ref params).
+  Future<Poster?> _ensureImage({
+    required String kind,
+    required List<String>? templateIds,
+    required PosterJob? existing,
+    required DateTime? lastCreate,
+    required Poster? Function() posterOf,
+    required void Function(PosterJob) applyJob,
+    required void Function(DateTime) stamp,
+    required void Function(bool) busy,
+  }) async {
+    if (posterOf() != null) return posterOf();
     final recipe = _recipe;
     if (recipe == null) return null;
-    setState(() => _sharing = true);
+    setState(() => busy(true));
     final repos = context.read<Repositories>();
     try {
-      var job = await repos.posters.createJob(recipe.id, _localeString());
-      for (var i = 0; i < _maxPolls; i++) {
-        job = await repos.posters.job(job.id);
-        final settled = job.status == PosterJobStatus.done ||
-            job.status == PosterJobStatus.partial ||
-            job.status == PosterJobStatus.failed;
-        if (settled) break;
+      PosterJob job;
+      final now = DateTime.now();
+      final recent = existing != null &&
+          lastCreate != null &&
+          now.difference(lastCreate) < _cooldown;
+      if (recent) {
+        job = existing;
+        debugPrint('[$kind] reuse job=${job.id} (within ${_cooldown.inMinutes}min '
+            'cooldown, ${now.difference(lastCreate).inSeconds}s elapsed)');
+      } else {
+        debugPrint('[$kind] createJob recipe=${recipe.id} locale=${_localeString()} '
+            'templates=$templateIds');
+        job = await repos.posters.createJob(recipe.id, _localeString(),
+            templateIds: templateIds);
+        stamp(now);
+        debugPrint('[$kind] job created id=${job.id} status=${job.status}');
       }
       if (!mounted) return null;
-      setState(() => _job = job);
-      return _sharePoster;
+      setState(() => applyJob(job));
+      job = await _pollUntilSettled(job, kind);
+      if (!mounted) return null;
+      setState(() => applyJob(job));
+      debugPrint('[$kind] settled status=${job.status} hasPoster=${posterOf() != null}');
+      return posterOf();
     } on ApiException catch (e) {
+      debugPrint('[$kind] api error: $e');
       if (mounted) _snack(e.message);
       return null;
     } finally {
-      if (mounted) setState(() => _sharing = false);
+      if (mounted) setState(() => busy(false));
+    }
+  }
+
+  /// Image failed to load (or is stale) — re-poll the current job for a fresh
+  /// URL rather than giving up on a broken-image icon.
+  Future<void> _reloadStepImage() => _reloadImage(
+        kind: 'step',
+        job: _stepJob,
+        applyJob: (j) => _stepJob = j,
+        busy: (b) => _stepBusy = b,
+        ensure: _ensureStepImage,
+      );
+
+  Future<void> _reloadShareImage() => _reloadImage(
+        kind: 'share',
+        job: _shareJob,
+        applyJob: (j) => _shareJob = j,
+        busy: (b) => _shareBusy = b,
+        ensure: _ensureShareImage,
+      );
+
+  Future<void> _reloadImage({
+    required String kind,
+    required PosterJob? job,
+    required void Function(PosterJob) applyJob,
+    required void Function(bool) busy,
+    required Future<Poster?> Function() ensure,
+  }) async {
+    if (job == null || _recipe == null) {
+      await ensure();
+      return;
+    }
+    setState(() => busy(true));
+    final repos = context.read<Repositories>();
+    try {
+      final updated = await repos.posters.job(job.id);
+      debugPrint('[$kind] reload job=${updated.id} status=${updated.status} '
+          'posters=${updated.posters.map((p) => '${p.status}:${p.imageUrl.isEmpty ? "no-url" : "url"}')}');
+      if (mounted) setState(() => applyJob(updated));
+    } on ApiException catch (e) {
+      debugPrint('[$kind] reload error: $e');
+      if (mounted) _snack(e.message);
+    } finally {
+      if (mounted) setState(() => busy(false));
     }
   }
 
@@ -307,6 +471,21 @@ class _CraftScreenState extends State<CraftScreen>
     if (_sharePoster == null) return;
     // ponytail: production wires share_plus here; SnackBar keeps it observable.
     _snack('${t.commonActionShare}: ${_recipe?.name ?? ''}');
+  }
+
+  /// Save the generated recipe image to the gallery (top-right Save button).
+  /// Save the recipe STEP image to the gallery (result step, top-right Save).
+  Future<void> _saveStepImage() => _savePoster(_stepPoster);
+
+  /// Save the SHARE image to the gallery (check-in step, top-right Save).
+  Future<void> _saveShareImage() => _savePoster(_sharePoster);
+
+  Future<void> _savePoster(Poster? p) async {
+    final url = p?.imageUrl;
+    if (url == null || url.isEmpty) return;
+    final t = AppLocalizations.of(context);
+    final ok = await context.read<ImageSaveService>().saveNetworkImage(url);
+    if (mounted) _snack(ok ? t.posterSaved : t.commonError);
   }
 
   /// Prompt for a new ingredient name and add it to the (public) library.
@@ -410,10 +589,30 @@ class _CraftScreenState extends State<CraftScreen>
               ),
               const SizedBox(width: 4),
             ],
-          _Step.result || _Step.checkin => [
-              Center(child: _StepBadge(step: _step.index, total: 3)),
-              const SizedBox(width: 12),
-            ],
+          // Result page: save the recipe STEP image; Check-in: save the SHARE
+          // image. Each shows only once its image has loaded.
+          _Step.result => _stepPoster == null
+              ? null
+              : [
+                  IconButton(
+                    key: const Key('btn_save_step'),
+                    tooltip: t.posterSaveToGallery,
+                    icon: const Icon(Icons.download_outlined),
+                    onPressed: _saveStepImage,
+                  ),
+                  const SizedBox(width: 4),
+                ],
+          _Step.checkin => _sharePoster == null
+              ? null
+              : [
+                  IconButton(
+                    key: const Key('btn_save_share'),
+                    tooltip: t.posterSaveToGallery,
+                    icon: const Icon(Icons.download_outlined),
+                    onPressed: _saveShareImage,
+                  ),
+                  const SizedBox(width: 4),
+                ],
           _Step.select => null,
         },
       ),
@@ -560,7 +759,7 @@ class _CraftScreenState extends State<CraftScreen>
 
   // ---- ② result: AI-generated recipe step image only (no text) ----
   Widget _buildResult(AppLocalizations t) {
-    final poster = _sharePoster;
+    final poster = _stepPoster;
     return Column(
       children: [
         Expanded(
@@ -572,17 +771,34 @@ class _CraftScreenState extends State<CraftScreen>
                   child: Center(
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(12),
-                      child: Image.network(
-                        poster.imageUrl,
+                      child: CachedNetworkImage(
+                        imageUrl: poster.imageUrl,
                         fit: BoxFit.contain,
-                        errorBuilder: (_, _, _) =>
-                            const Icon(Icons.broken_image, size: 64),
+                        // Cap the decoded resolution to prevent OOM on large
+                        // share images (cacheWidth/cacheHeight = memCache*).
+                        memCacheWidth: 1200,
+                        memCacheHeight: 1600,
+                        placeholder: (_, _) => const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                        errorWidget: (context, _, _) => InkWell(
+                          onTap: _reloadStepImage,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.refresh, size: 48),
+                              const SizedBox(height: 8),
+                              Text(AppLocalizations.of(context)
+                                  .commonActionRetry),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 );
               }
-              if (_sharing) {
+              if (_stepBusy) {
                 // GPT step-image generation takes time → shimmer placeholder.
                 return Padding(
                   padding: const EdgeInsets.all(16),
@@ -608,7 +824,7 @@ class _CraftScreenState extends State<CraftScreen>
                     Text(t.posterTimeout),
                     const SizedBox(height: 12),
                     FilledButton.icon(
-                      onPressed: _ensurePoster,
+                      onPressed: _ensureStepImage,
                       icon: const Icon(Icons.refresh),
                       label: Text(t.commonActionRetry),
                     ),
@@ -645,15 +861,57 @@ class _CraftScreenState extends State<CraftScreen>
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
       children: [
-        if (poster != null)
+        // Pick a share template, then generate the share image with it.
+        _SectionHeader(t.craftShareTemplate),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 48,
+          child: FutureBuilder<List<StyleTemplate>>(
+            future: _templates,
+            builder: (context, snap) {
+              final list = snap.data ?? const <StyleTemplate>[];
+              return ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: list.length,
+                separatorBuilder: (_, _) => const SizedBox(width: 8),
+                itemBuilder: (context, i) {
+                  final tpl = list[i];
+                  final selected = _selectedTemplate?.id == tpl.id;
+                  return ChoiceChip(
+                    key: Key('tpl_${tpl.id}'),
+                    label: Text(tpl.name),
+                    selected: selected,
+                    onSelected: (_) =>
+                        setState(() => _selectedTemplate = tpl),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 12),
+        if (_shareBusy)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 48),
+            child: Center(child: CircularProgressIndicator()),
+          )
+        else if (poster != null)
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Stack(
               children: [
-                Image.network(
-                  poster.imageUrl,
+                CachedNetworkImage(
+                  imageUrl: poster.imageUrl,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, _, _) => const SizedBox(height: 200),
+                  memCacheWidth: 1000,
+                  memCacheHeight: 1000,
+                  placeholder: (_, _) => const SizedBox(height: 200),
+                  errorWidget: (_, _, _) => InkWell(
+                    onTap: _reloadShareImage,
+                    child: const SizedBox(
+                        height: 200,
+                        child: Center(child: Icon(Icons.refresh, size: 40))),
+                  ),
                 ),
                 Positioned(
                   left: 0,
@@ -692,6 +950,14 @@ class _CraftScreenState extends State<CraftScreen>
                 ),
               ],
             ),
+          )
+        else
+          FilledButton.icon(
+            key: const Key('btn_generate_share'),
+            onPressed:
+                _selectedTemplate == null ? null : _ensureShareImage,
+            icon: const Icon(Icons.auto_awesome),
+            label: Text(t.craftGeneratePoster),
           ),
         Row(
           children: [
@@ -706,8 +972,8 @@ class _CraftScreenState extends State<CraftScreen>
             const SizedBox(width: 12),
             Expanded(
               child: OutlinedButton.icon(
-                onPressed: _sharing ? null : _share,
-                icon: _sharing
+                onPressed: _shareBusy ? null : _share,
+                icon: _shareBusy
                     ? const SizedBox(
                         height: 18,
                         width: 18,
@@ -1120,30 +1386,6 @@ class _RecentScans extends StatelessWidget {
           ],
         );
       },
-    );
-  }
-}
-
-class _StepBadge extends StatelessWidget {
-  const _StepBadge({required this.step, required this.total});
-  final int step;
-  final int total;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        border: Border.all(color: AppTheme.neonCyan),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        'STEP $step/$total',
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: AppTheme.neonCyan,
-              letterSpacing: 1.5,
-            ),
-      ),
     );
   }
 }

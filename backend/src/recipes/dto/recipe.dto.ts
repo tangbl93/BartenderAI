@@ -60,4 +60,9 @@ export class RecipeDto {
     description: '扁平插画配图 URL（异步生成，初始为空）',
   })
   imageUrl: string | null;
+  @ApiProperty({
+    nullable: true,
+    description: '精选配方预渲染步骤图 URL（中文，全语种共享）',
+  })
+  featuredImageUrl: string | null;
 }

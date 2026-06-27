@@ -1,0 +1,72 @@
+# ============================================================
+# Render Blueprint — Home Bartender AI
+# ------------------------------------------------------------
+# 部署方式：Render dashboard → New → Blueprint → 选本 repo。
+# Render 会自动读取此文件，创建下方所有资源。
+#
+# 免费层限制（2026，见 render.com/docs/free）：
+#   - Postgres：1GB，创建 30 天后自动删除（14 天宽限可升级）
+#   - Web Service：512MB RAM，15 分钟无请求会休眠，冷启动 ~30s
+#   - 无持久 disk（仅 25MB ephemeral）→ uploads 重启会丢
+#
+# 因此本配置用 IMAGE_PROVIDER=stub（不调真实 AI）+ local 存储（ephemeral）。
+# 需要持久存储 / 真实海报时：
+#   - 接外部 S3：把 STORAGE_DRIVER 改 s3-compatible，填 R2/B2 凭证
+#   - 真实 AI：IMAGE_PROVIDER=gpt-image-2 + IMAGE_API_KEY
+# ============================================================
+
+databases:
+  - name: bartender-db
+    databaseName: bartender
+    user: bartender
+    plan: free
+    ipAllowList: [] # Render 内部服务互连，无需外部 IP 白名单
+
+services:
+  # -------------------- NestJS 后端（Docker）--------------------
+  - type: web
+    name: bartender-backend
+    runtime: docker
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    plan: free
+    healthCheckPath: /api/v1/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: bartender-db
+          property: connectionString
+      - key: BACKEND_PORT
+        value: "3000" # Dockerfile EXPOSE 3000，Render 据此路由
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 2h
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      - key: IMAGE_PROVIDER
+        value: stub
+      - key: STORAGE_DRIVER
+        value: local
+      - key: STORAGE_PUBLIC_BASE_URL
+        value: /uploads
+
+  # -------------------- React 前端（Static Site）--------------------
+  - type: web
+    name: bartender-web
+    runtime: static
+    rootPath: web
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    plan: free
+    autoDeploy: true
+    envVars:
+      # 部署后若 backend 的 onrender.com 域名与此不符，到 dashboard 改这里再 redeploy web
+      - key: VITE_API_BASE_URL
+        value: https://bartender-backend.onrender.com/api/v1
+    routes:
+      - source: /*
+        destination: /index.html # SPA history fallback

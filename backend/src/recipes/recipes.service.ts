@@ -158,6 +158,15 @@ export class RecipesService {
     return entity;
   }
 
+  /** Delete a recipe (used by admin to remove an example recommendation). */
+  async remove(id: string): Promise<void> {
+    const entity = await this.recipes.findOne({ where: { id } });
+    if (!entity) {
+      throw new NotFoundException('配方不存在');
+    }
+    await this.recipes.remove(entity);
+  }
+
   async examples(locale = 'en'): Promise<RecipeDto[]> {
     const rows = await this.recipes.find({
       where: { isExample: true },
@@ -183,6 +192,7 @@ export class RecipesService {
       safetyNotes: e.safetyNotes,
       isExample: e.isExample,
       imageUrl: e.imageUrl ?? null,
+      featuredImageUrl: e.featuredImageUrl ?? null,
     };
   }
 }

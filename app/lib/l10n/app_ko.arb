@@ -120,6 +120,7 @@
   "craftDiyTitle": "재료 선택",
   "craftAddIngredient": "재료 추가",
   "craftAddIngredientHint": "재료 이름",
+  "craftShareTemplate": "공유 템플릿",
   "craftGeneratePoster": "공유 이미지 생성",
   "craftConfirmTitle": "저장 확인",
   "craftAddPhotos": "완성 사진 추가",
@@ -143,5 +144,7 @@
   "craftManualSelect": "직접 선택",
   "craftInventorySaved": "재고가 저장되었습니다",
   "craftRecentScans": "최근 스캔",
-  "homeFeatured": "추천"
+  "homeFeatured": "추천",
+  "homeHeroCta": "오늘 밤, 당신만의 칵테일을",
+  "featuredViewAll": "전체 보기"
 }

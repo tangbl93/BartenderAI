@@ -58,6 +58,11 @@ export class RecipeEntity {
   @Column({ type: 'varchar', nullable: true })
   imageUrl: string | null;
 
+  /** Pre-rendered step/result image for FEATURED (example) recipes, so opening
+   *  one needs no live generation. Chinese-only, shared across locales. */
+  @Column({ type: 'varchar', nullable: true })
+  featuredImageUrl: string | null;
+
   @Column({ type: 'varchar', nullable: true })
   ownerId: string | null;
 

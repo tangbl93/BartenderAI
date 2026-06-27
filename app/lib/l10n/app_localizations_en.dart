@@ -374,6 +374,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get craftAddIngredientHint => 'Ingredient name';
 
   @override
+  String get craftShareTemplate => 'Share template';
+
+  @override
   String get craftGeneratePoster => 'Generate share image';
 
   @override
@@ -446,4 +449,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeFeatured => 'Featured';
+
+  @override
+  String get homeHeroCta => 'Mix your perfect cocktail tonight';
+
+  @override
+  String get featuredViewAll => 'View all';
 }

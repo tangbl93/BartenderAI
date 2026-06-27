@@ -9,8 +9,8 @@ class AppConfig {
   });
 
   /// Hardcoded backend API base URL.
-  /// iOS 模拟器/桌面用 localhost；Android 模拟器改 10.0.2.2；真机改后端 LAN IP。
-  final String apiBaseUrl = 'http://localhost:3000/api/v1';
+  /// Android 模拟器通过 10.0.2.2 访问宿主机 localhost；真机改后端 LAN IP。
+  final String apiBaseUrl = 'http://10.0.2.2:3000/api/v1';
 
   /// Profile-screen contact (mailto).
   final String contactEmail;
